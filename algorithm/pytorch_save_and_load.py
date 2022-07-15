@@ -6,7 +6,7 @@ output_dim = 2
 num_prompt = 100
 fine_tune_layer = Linear(in_features=input_dim, out_features=output_dim)
 fine_tune_layer_1 = Linear(in_features=input_dim, out_features=output_dim)
-optimizer = torch.optim.Adam(fine_tune_layer.parameters(), lr=1)
+# optimizer = torch.optim.Adam(fine_tune_layer.parameters(), lr=1)
 optimizer = torch.optim.Adam(
     [{'params': fine_tune_layer.parameters()}, {'params': fine_tune_layer_1.parameters(), 'lr': 1e-3}], lr=1e-2, )
 
