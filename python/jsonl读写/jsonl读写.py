@@ -15,8 +15,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 if __name__ == '__main__':
     current_file_dir = os.path.dirname(__file__)
-    jsonl_read_path: str = os.path.join(current_file_dir, '../data/jsonl_read.jsonl')
-    jsonl_write_path: str = os.path.join(current_file_dir, '../data/jsonl_write.jsonl')
+    jsonl_read_path: str = os.path.join(current_file_dir, 'data/jsonl_read.jsonl')
+    jsonl_write_path: str = os.path.join(current_file_dir, 'data/jsonl_write.jsonl')
     data: List[Dict] = [per_data for per_data in jsonlines.open(jsonl_read_path)]
     # 写入:方法一
     # jsonlines.open(jsonl_write_path, 'w').write_all(data)
