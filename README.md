@@ -1,4 +1,4 @@
-# 记录本人在学习和工作中的技巧
+# python和nlp的一些经验
 
 包括python和algorithm两部分
 
