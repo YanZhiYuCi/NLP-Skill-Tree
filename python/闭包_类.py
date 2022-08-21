@@ -18,9 +18,12 @@ class ParallelTransformer:
         self.data = [1, 2]
 
     def my_function(self):
+        self.sum = 1.0
         def custom_1():
+            self.sum = 1.0 + 2
             temp = self.data  # 虽然在pycharm中这里的self没有再显示成紫色,仍然可以用
             logger.info('custom_1:{}'.format(temp))
+            logger.info('custom_1_sum:{}'.format(self.sum))
 
             def custom_2():
                 temp1 = self.data
@@ -29,7 +32,9 @@ class ParallelTransformer:
 
             return custom_2()
 
-        return custom_1()
+        res = custom_1()
+        logger.info('my_function_sum:{}'.format(self.sum))
+        return res
 
 
 if __name__ == '__main__':
