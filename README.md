@@ -1,4 +1,4 @@
-# python和nlp的一些trick
+# python和nlp的trick
 
 包括python和algorithm两部分
 
