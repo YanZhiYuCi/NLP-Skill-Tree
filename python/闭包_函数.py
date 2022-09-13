@@ -91,3 +91,51 @@ def c1():
 
 
 c1()
+
+
+# 形参实参一样不影响，但是假如说他们的值是复杂数据类型，例如列表、字典、集合、class(不包括整int、float、string、Tuple)##################
+# 在函数内修改在函数外同样有效，因为复杂数据类型是对同一内存地址的别名所以改一个其他名字也会改变，可以使用d_c=copy.deepcopy(d)来避免
+c = [1, 2, 3]
+
+
+def f(c):
+    print(c)
+    c.append(4)
+    print(c)
+    return c
+
+
+print(c)
+c1 = f(c)
+print(c1)  # c1 和c均变化了
+print(c)
+
+c = [1, 2, 3]
+
+
+def f_1(c_):
+    print(c_)
+    c_.append(4)
+    print(c_)
+    return c_
+
+
+print(c)
+c1 = f_1(c)
+print(c1)  # c1 和c均变化了
+print(c)
+
+a = [1,2,3]
+e = a
+c = a[:]
+d = a[:]
+a_id = id(a)
+b_id = id(c)
+d_id = id(d)
+e_id = id(e)
+print(a==c)
+print(a is c)
+b = [a, a]
+print(b)
+a.append(4)
+print(b)
