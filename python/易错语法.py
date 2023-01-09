@@ -36,3 +36,8 @@ res = sorted(arr, key=lambda x: (x[0], -int(x[1])))
 arr.sort(key=lambda x: (x[0], -int(x[1])))
 print(arr)
 print(res)
+
+# 字典排序
+similarity_dict = {'a': 1, 'c': 3, 'b': 2}
+sorted_similarity_dict = sorted(similarity_dict.items(), reverse=True, key=lambda x: x[1])
+print('similarity_dict:{}'.format(sorted_similarity_dict))
