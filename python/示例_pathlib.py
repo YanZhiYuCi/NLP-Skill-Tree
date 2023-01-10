@@ -1,7 +1,3 @@
-# -*- coding: UTF-8 -*
-import os
-import sys
-
 import pathlib
 
 c0 = r'D:\Projects\KnowledgeFusion\backup\corpus_root_for_fusion_按类别'
