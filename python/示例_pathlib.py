@@ -10,6 +10,7 @@ c1 = c.parent
 c2 = c.name
 print()
 
+
 c0 = r'D:\Projects\KnowledgeFusion\backup\command.txt'
 c0 = r'D:\Projects\KnowledgeFusion/backup\command.txt'
 c0 = r'D:\Projects\KnowledgeFusion\backup/command.txt'
