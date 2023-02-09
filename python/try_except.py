@@ -16,3 +16,15 @@ except Exception as e:
     except Exception as e:
         print('789')
     print('012')
+
+print('===================================================================================')
+try:
+    print('123')
+    try:
+        print('456')
+        c2
+    except Exception as e:
+        print('789')
+    print('345')
+except Exception as e:
+    print('012')
