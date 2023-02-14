@@ -25,4 +25,4 @@ print(res)
 # 字典排序 按照value排序
 similarity_dict = {'a': 1, 'c': 3, 'b': 2}
 sorted_similarity_dict = sorted(similarity_dict.items(), reverse=True, key=lambda x: x[1])
-print('similarity_dict:{}'.format(sorted_similarity_dict))
+print('similarity_dict:{}'.format(sorted_similarity_dict))  # [('c', 3), ('b', 2), ('a', 1)]
