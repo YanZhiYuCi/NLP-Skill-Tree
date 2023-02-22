@@ -1,0 +1,425 @@
+# 现病史分块_3.1.0: 有些直接从k8s中找到的镜像,直接启动报错  'NoneType' object has no attribute 'model_checkpoint_path' 原因是模型文件没有放到正确位置
+# -v ${MODEL_DIR}/ai-doctor-assistant/models:/ai-doctor-assistant/models /ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0下没有模型文件
+docker rm -f pre_his_chunk_3.1.0
+# 没有挂载,可以直接用 说明这个镜像是你后来自己封装的 把需要的模型文件加进去了
+#docker  run  -p 11000:8080 -p 11001:8081 -itd --runtime=nvidia --name pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:v1 python app.py  # 可以直接用
+#docker run -itd -p 11000:8080  -p 11001:8081 --runtime=nvidia -v ${MODEL_DIR}/ai-doctor-assistant/models:/ai-doctor-assistant/models --name pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:20191129024330  python app.py
+#docker run -it -p 11000:8080  -p 11001:8081 -v ${MODEL_DIR}/ai-doctor-assistant/models:/ai-doctor-assistant/models --name pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:20191129024330  /bin/bash
+
+# 可以运行
+#docker run -it -p 11000:8080  -p 11001:8081 -v ${MODEL_DIR}/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0:/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0 --name pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:20191129024330  /bin/bash
+docker run -itd -p 11000:8080  -p 11001:8081 --runtime=nvidia -v ${MODEL_DIR}/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0:/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0 --name pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:20191129024330  python app.py
+
+#docker inspect pre_his_chunk_3.1.0
+#docker run -itd -p 11040:8080  -p 11041:8081  -v ${MODEL_DIR}/ai-doctor-assistant/models:/ai-doctor-assistant/models --name per_his_v3.2.5 dockerdist.bdmd.com/per-his:v3.2.5  python app.py
+
+#/home/machaoyang/Projects/model/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0
+#docker  run  -p 11000:8080 -itd --runtime=nvidia --name pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:v1 /bin/bash
+#docker run -itd -p 11000:8080  -p 11001:8081 --runtime=nvidia -v ${MODEL_DIR}/ai-doctor-assistant/models:/ai-doctor-assistant/models --name pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:v1  python app.py
+#docker run -itd -p 11000:8080  -p 11001:8081 --gpus=all -v ${MODEL_DIR}/ai-doctor-assistant/models:/ai-doctor-assistant/models --name pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:20191129024330  python app.py
+#docker run -itd -p 11000:8080  -p 11001:8081 --runtime=nvidia -v ${MODEL_DIR}/ai-doctor-assistant/models:/ai-doctor-assistant/models --name pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:20191129024330  python app.py
+#docker  run  -p 11000:8080 -p 11001:8081 -it --runtime=nvidia --name pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:v1 /bin/bash
+
+#/home/machaoyang/Projects/model/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0
+#/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0
+
+# ######################################
+# docker run时最后不加任何指令,则默认使用构建镜像时指定的指令(例如CMD python3 app.py) 当我们使用docker run -v /host/something:/container/something尝试挂载默写目录到容器内时,期待的效果是容器内的文件和本地目录的文件相互映射,但实际效果宿主机目录会直接覆盖掉容器内的目录
+docker run -itd -p 12570:8080 -p 12571:8081  -p 1122:22 --name convert_to_triple -v /home/machaoyang/Projects/demonstrate:/demonstrate dockerdist.bdmd.com/convert_to_triple:v1.0526
+
+# docker_CPM-2
+docker  run  -p 303:22 -it --name prompt_learning_v3 gyxthu17/cpm-2:1.1 /bin/bash
+docker  run  -p 15001:8080 -p 301:22 -it --name prompt_learning_v1 gyxthu17/cpm-2:1.1 /bin/bash
+docker  run  -p 410:22 -it --gpus=all --name prompt_learning_v5 gyxthu17/cpm-2:1.1 /bin/bash
+docker  run  -p 420:22 -it --gpus=all –-shm-size 8g --name prompt_learning_v5 gyxthu17/cpm-2:1.1 /bin/bash
+docker  run  -p 415:22 -it --gpus=all --name prompt_learning_v5 -v /data/machaoyang/cpm-2-finetune:/cpm-2-finetune gyxthu17/cpm-2:1.1 /bin/bash
+docker  run  -p 417:22 -it --gpus=all --name prompt_learning_v7 -v /data/machaoyang/cpm-2-finetune:/cpm-2-finetune gyxthu17/cpm-2:1.1_machaoyang /bin/bash
+docker  run  -p 418:22 -it --gpus=all --name prompt_learning_v8 -v /data/machaoyang/cpm-2-finetune_encoder:/cpm-2-finetune gyxthu17/cpm-2:1.1_machaoyang /bin/bash
+docker  run  -p 418:22 -it --gpus=all --name prompt_learning_v8 -v /data/machaoyang/cpm-2-finetune:/cpm-2-finetune gyxthu17/cpm-2:1.1_machaoyang /bin/bash
+docker  run  -it --gpus=all --name prompt_learning_v4 -v /data/machaoyang/cpm-2-finetune:/cpm-2-finetune gyxthu17/cpm-2:1.1_machaoyang /bin/bash
+# GPU启动 docker 19.03之前的是--runtime=nvidia 19.03和之后为--gpus all
+docker  run  -p 420:22 -it --runtime=nvidia  --name prompt_learning_v11 gyxthu17/cpm-2:1.2_v1 /bin/bash
+docker  run  -p 420:22 -it --runtime=nvidia  --name prompt_learning_v80 cmp2_v2 /bin/bash
+docker  run  -p 411:22 -it --runtime=nvidia  --name prompt_learning_v11 gyxthu17/cpm-2:1.2_v1 /bin/bash
+
+# linux查看系统信息
+source ~/.bashrc
+nvcc -V
+conda install cudatoolkit=10.1
+conda update --force conda
+cat /usr/local/version.txt
+linux查看版本当前操作系统发行信息 cat /etc/issue
+Linux查看cpu相关信息，包括型号、主频、内核信息等 cat /etc/cpuinfo
+
+# 即使model下没有ai-doctor-assistant这个目录,也会创建,并且直接将源目录下的所有文件直接复制到目标目录,而不会在ai-doctor-assistant下再创建一个ai-doctor-assistant
+cp -r ai-doctor-assistant/ ../Projects/model/ai-doctor-assistant/
+# 查看某个目录总共占的磁盘容量
+du -sh 目录
+# 查看/目录下的所有文件和文件夹大小，找出所有GB大小的文件，并从大到小排序
+du -h / | grep G | sort -nr
+
+# 查看磁盘空间
+df -hl
+
+# 查看端口被哪个进程占用
+netstat -tunlp | grep 2181
+
+# nohup
+nohup python train.py >> train_log.log 2>&1 &  追加到文件
+nohup python train.py > train_log.log 2>&1 &   清空之前文件内容新加
+nohup ./启动.sh > log/不良反应_token_cls_index_no_blank_1.log 2>&1 &
+
+# tensorboard
+tensorboard –-logdir /Users/machaoyang/Downloads/cpm-2-finetune/result/
+http://localhost:6006
+
+# 本地文件 容器 互传文件 这里传到根目录了
+docker cp  ../cpm-2-finetune prompt_learning_v8:/
+docker cp  prompt_learning_v8:/cpm-2-finetune ./
+
+# 启动容器 容器id或者容器名字
+docker start d0457afeeb1c
+# 进入容器 容器id或者容器名字 指定gpu是在创建容器的时候，进入的话不需要指定
+docker exec -it d0457afeeb1c
+# 获取容器/镜像的元数据
+docker inspect 容器/镜像
+# 打包镜像
+docker commit cure_his_struct_1.0.0 dockerdist.bdmd.com/symptom_struct_cuda_gemotric:cure_struct_1.0.0
+# 上传镜像
+docker push dockerdist.bdmd.com/symptom_struct_cuda_gemotric:cure_struct_1.0.0
+
+# 更新apt源，安装某个包:
+apt-get update
+缺少sudo:
+apt install net-tools
+缺少vim:
+apt install vim
+缺少ssh:
+apt install openssh-server
+apt install openssh-client
+# 重启ssh服务
+/etc/init.d/ssh restart
+
+# 关于MQ的docker
+docker run -it -p 6653:6650  -p 8083:8080  --name pulsar_v3 apachepulsar/pulsar:latest
+进入容器后，bin/pulsar standalone
+docker exec -it 394fa08b3130 /bin/bash
+docker exec -it 394fa08b3130 bin/pulsar standalone
+docker run -it -p 6654:6650  -p 8084:8080  --name pulsar_v4 apachepulsar/pulsar:latest  bin/pulsar standalone
+
+# 容器启动:药品不良反应实体抽取
+docker run -it -p 411:22 -p 10001:10001  -p 10000:10000  --name drug_introduction_v1 python:3.7.3  /bin/bash
+
+# v1
+# 将测试模型界面的容器(从南京k8s找容器和模型)部署到office2上，以提供外部可以访问的接口的步骤:
+1.打开数据库:other_model_test_base_config表格，找到模型对应的title以及version和url(区分是model还是model-nj)
+2.在mac上kubectl get pods -n model-nj，通过1的url找到对应的服务，例如hpi-v3-2-0-d55b49998-bv4nn,只取hpi-v3-2-0
+3.kubectl get deploy hpi-v3-2-0 -n model-nj -o yaml，找到image: dockerdist.bdmd.com/hpi:20200518050636和nfs: path: /exports/ai-doctor-assistant/v3_2/service_hpi/v3_2_0 server: 192.168.101.176 (本路径为外边挂载的路径[是模型存在的路径]，不是容器内的路径)
+4.mount -o vers=4 -t nfs 192.168.101.176:/  ~/model  把server: 192.168.101.176的模型路径挂载在mac上
+5.将3中路径的模型scp -r ./checkpoint_last.pt machaoyang@192.168.206.101:/home/machaoyang/拷贝到office2上，然后docker cp  checkpoint_last.pt 70b58b98844b:/ai-doctor-assistant/models/v3_2/service_hpi/v3_2_0到容器内模型的路径下
+
+
+# v2
+# 将测试模型界面的容器(从南京k8s找容器和模型)部署到office2上，以提供外部可以访问的接口的步骤:
+1.打开数据库:other_model_test_base_config表格，找到模型对应的title以及version和url(区分是model还是model-nj)
+2.在mac上kubectl get pods -n model-nj，通过1的url找到模型对应的服务，例如hpi-v3-2-0-d55b49998-bv4nn,只取hpi-v3-2-0
+3.kubectl get deploy hpi-v3-2-0 -n model-nj -o yaml，找到image: dockerdist.bdmd.com/hpi:20200518050636
+4.mount -o vers=4 -t nfs 192.168.101.176:/  ~/model  把server: 192.168.101.176的模型路径挂载在office2上(挂载只是建了个目录映射,没有将模型从k8s上下载下来,所以挂载的目录文件不会占据磁盘空间,这在mac电脑上体现最明显,由于model的所有文件有65G下载是在太慢,所以只下载和模型测试相关的服务的模型)
+5.复制office2上的model/ai-doctor-assistant(约13G)到另外一个目录,例如/home/machaoyang/Projects/models/ai-doctor-assistant, 为了与容器内存放模型文件的目录保持一致,在ai-doctor-assistant目录下新建models目录,然后将原来ai-doctor-assistant下的所有子目录移动到models
+6.docker run -itd -p 11040:8080  -p 11041:8081  -v /home/machaoyang/Projects/model/ai-doctor-assistant/models:/ai-doctor-assistant/models --name per_his_v3.2.5 dockerdist.bdmd.com/per-his:v3.2.5  python app.py
+
+kubectl get pod hpi-v3-2-0-d55b49998-bv4nn -n model-nj  -o yaml 查找pod时需要带上-d55b49998-bv4nn不能只写hpi-v3-2-0
+kubectl get deploy struct-ecg-v1-1 -n model-nj -o yaml
+kubectl get deploy past-his-v3-2-0 -n model-nj -o yaml
+kubectl get deploy fam-his-v3-2-0 -n model-nj -o yaml
+kubectl get deploy cmh-chunk-v3-1-0 -n model-nj -o yaml
+kubectl get deploy lab-rela-v3-0-1 -n model-nj -o yaml
+kubectl get deploy struct-sym-v3-1-2 -n model-nj -o yaml
+kubectl get deploy struct-phy-v3-2-0 -n model-nj -o yaml
+kubectl get deploy struct-exam66-v1-1 -n model-nj -o yaml
+
+# kubectl相关指令:
+# 查看有哪些名称空间
+kubectl get ns
+获取指定名称空间的pod
+kubectl get pod -n model
+kubectl get pod -n model-nj
+
+kubectl -n model edit deploy diagnosis-v2.8.1.3 -o yaml
+kubectl -n model-nj edit deploy per-his-v3-2-5 -o yaml
+kubectl -n model-nj edit deploy struct-sym-v3-1-3 -o yaml
+
+docker run -it -p 11000:8080  -p 11001:8081  --name per_his_v3.2.5_v1 dockerdist.bdmd.com/per-his:v3.2.5  /bin/bash
+docker exec -it per_his_v3.2.5 /bin/bash
+docker run -it -p 11010:8080  -p 11011:8081  --name struct_symptom_v3_1_2 dockerdist.bdmd.com/service_struct_symptom:20190918074629 /bin/bash
+docker run -it -p 11020:8080  -p 11021:8081  --name struct_symptom_v3_1_1 dockerdist.bdmd.com/models/struct-symptom:v3.1.1 /bin/bash
+
+# 现病史分块
+docker  run  -p 18080:8080 -it --gpus=all --name pre_his_chunk_gpu dockerdist.bdmd.com/cmh-chunk:v1 /bin/bash
+
+# 治疗史结构化
+docker cp /home/machaoyang/Projects/symptom_struct/zk_jws/  cure_his_struct_1.0.0:/symptom_struct/zk_jws/
+docker commit cure_his_struct_1.0.0 dockerdist.bdmd.com/symptom_struct_cuda_gemotric:cure_struct_1.0.0
+docker  run  -p 3022:22 -p 8880:8080 -p 8881:8081 -p 8882:8081 -it --runtime=nvidia  --name symptom_struct -v /home/machaoyang/Projects/symptom_struct:/symptom_struct dockerdist.bdmd.com/inquiry_cuda_gemotric:v2832 /bin/bash
+docker  run  -p 4022:22 -p 8880:8080 -p 8881:8081 -p 8882:8081 -it --runtime=nvidia  --name symptom_struct_v1 -v /home/machaoyang/Projects/symptom_struct:/symptom_struct dockerdist.bdmd.com/symptom_struct_cuda_gemotric:v1 /bin/bash
+docker  run  -p 4022:22 -p 8880:8080 -p 8881:8081 -p 8882:8081 -it --runtime=nvidia  --name cure_struct_v1.0.0 -v /home/machaoyang/Projects/symptom_struct:/symptom_struct dockerdist.bdmd.com/symptom_struct_cuda_gemotric:cure_struct /bin/bash
+docker  run  -p 11130:8080  -p 11131:8081 -itd -w /symptom_struct/zk_jws --runtime=nvidia  --name cure_his_struct_1.0.0 dockerdist.bdmd.com/symptom_struct_cuda_gemotric:cure_struct_1.0.0 python3 app.py
+
+
+
+
+
+# 症状结构化3.1.2修改和启动方式
+将 import options_rc 直接改成from fairseq import options
+python app.py data
+docker run -it -p 11010:8080  -p 11011:8081  --name struct_symptom_v3_1_2 dockerdist.bdmd.com/service_struct_symptom:20190918074629 /bin/bash
+
+# mac 连接复兴
+ssh -L 0.0.0.0:10020:10.8.0.6:22 machaoyang@192.168.206.102
+ssh -p 10020 machaoyang@0.0.0.0
+# 容器 连接复兴
+ssh -L 0.0.0.0:10021:10.8.0.6:415 machaoyang@192.168.206.102
+ssh -p 10021 root@0.0.0.0
+每次mac待机后,需要重新执行一下ssh -L 0.0.0.0:10020:10.8.0.6:22 machaoyang@192.168.206.102和ssh -L 0.0.0.0:10021:10.8.0.6:415 machaoyang@192.168.206.102
+scp -r /home/machaoyang/Projects/model_ner_test/ machaoyang@10.8.0.6:/data/machaoyang/model_ner_test/
+
+# 体格检查结构化_GPU
+docker run  -it --gpus=all -p 12110:8080  -p 12111:8081 -p 12112:22 --name phy_struct_gpu  dockerdist.bdmd.com/struct-phy:20190828041746_gpu_with_checkpoint /bin/bash
+docker cp  ../cpm-2-finetune prompt_learning_v8:/
+docker cp  phy_struct_gpu:/cpm-2-finetune ./
+
+docker cp  app.py  flamboyant_hoover:/ai-doctor-assistant/v3_1_0
+
+docker rm -f phy_struct_gpu
+#docker run -itd -p 11030:8080  -p 11031:8081 -v ${MODEL_DIR}/ai-doctor-assistant/models/v3_2/service_struct_physical_exam/v3_2_0:/ai-doctor-assistant/models/v3_2/service_struct_physical_exam/v3_2_0 --name phy_struct_3.2.0 dockerdist.bdmd.com/struct-phy:20190828041746  python app.py
+docker run  -it --runtime=nvidia -p 12110:8080  -p 12111:8081 -p 12112:22 -v /home/machaoyang/Projects/model/ai-doctor-assistant/models/v3_2/service_struct_physical_exam/v3_2_0:/ai-doctor-assistant/models/v3_2/service_struct_physical_exam/v3_2_0 --name phy_struct_gpu  dockerdist.bdmd.com/struct-phy:20190828041746 /bin/bash
+CUDA_VISIBLE_DEVICES=0 python app.py
+
+docker run  -it -p 13110:8080  -p 13111:8081 -p 13112:22 -v /home/machaoyang/Projects/model/ai-doctor-assistant/models/v3_2/service_struct_physical_exam/v3_2_0:/ai-doctor-assistant/models/v3_2/service_struct_physical_exam/v3_2_0 --name phy_struct_cpu  dockerdist.bdmd.com/struct-phy:20190828041746 /bin/bash
+
+
+docker run -it -p 11030:8080  -p 11031:8081 -v /home/machaoyang/Projects/model/ai-doctor-assistant/models/v3_2/service_struct_physical_exam/v3_2_0:/ai-doctor-assistant/models/v3_2/service_struct_physical_exam/v3_2_0 --name phy_struct_cpu dockerdist.bdmd.com/struct-phy:20190828041746  python app.py
+
+docker commit phy_struct_gpu dockerdist.bdmd.com/struct-phy:20190828041746_zh
+docker rm -f phy_struct_gpu_
+docker run -it -p 12040:8080  -p 12041:8081 -v /home/machaoyang/Projects/model/ai-doctor-assistant/models/v3_2/service_struct_physical_exam/v3_2_0:/ai-doctor-assistant/models/v3_2/service_struct_physical_exam/v3_2_0 --name phy_struct_gpu_ dockerdist.bdmd.com/struct-phy:20190828041746_zh  /bin/bash
+
+docker run -it -p 12050:8080  -p 12051:8081 --name phy_struct_gpu_ dockerdist.bdmd.com/struct-phy:20190828041746  /bin/bash
+
+docker commit cure_his_struct_1.0.0 dockerdist.bdmd.com/symptom_struct_cuda_gemotric:cure_struct_1.0.0_no_print
+
+
+# 症状结构化_GPU
+docker commit 7c7b0f255b6f dockerdist.bdmd.com/service_struct_symptom:20190918074629_gpu_with_checkpoint
+docker run  -it --gpus=all -p 11120:8080  -p 11121:8081 -p 11122:22 --name sym_struct_gpu  dockerdist.bdmd.com/service_struct_symptom:20190918074629_gpu_with_checkpoint /bin/bash
+docker cp  checkpoint_best.pt 4ff9b9b77791:/model/checkpoint_best.pt
+docker  run --gpus=all -it -p 11130:8080  -p 11131:8081 -p 11132:22 --name sym_struct_gpu_3.1.2  dockerdist.bdmd.com/struct-phy:20190828041746_gpu_with_checkpoint_3.1.2 /bin/bash
+docker cp  checkpoint_best.pt sym_struct_gpu_3.1.2:/model/checkpoint_best.pt
+docker  run  -it --gpus=all -it -p 11120:8080  -p 11121:8081 -p 11122:22 --name sym_struct_gpu_3.1.2  dockerdist.bdmd.com/service_struct_symptom:20190918074629_gpu_with_checkpoint_3.1.2 /bin/bash
+
+##############################################################
+kubectl -n model-nj edit deploy struct-sym-v3-1-2 -o yaml
+# 症状结构化
+dockerdist.bdmd.com/service_struct_symptom:20190918074629
+scp -r ./checkpoint_last.pt machaoyang@192.168.206.102:/home/machaoyang/struct-sym-v3-1-2
+docker cp  checkpoint_last.pt 70b58b98844b:/ai-doctor-assistant/models/v3_2/service_hpi/v3_2_0
+
+/exports/ai-services/struct_sym_v3_1_2
+-v /Users/machaoyang/model/ai-services/struct_sym_v3_1_2:
+docker run -it -p 11010:8080  -p 11011:8081 --name struct_symptom_v3_1_2 dockerdist.bdmd.com/service_struct_symptom:20190918074629 /bin/bash
+docker cp  checkpoint_best.pt struct_symptom_v3_1_2:/model/checkpoint_best.pt
+
+#体格检查结构化
+http://struct-phy-v3-2-0.model-nj:8080/predict
+kubectl -n model-nj edit deploy struct-phy-v3-2-0 -o yaml
+mountPath: /ai-doctor-assistant/models/v3_2/service_struct_physical_exam/v3_2_0
+path: /exports/ai-doctor-assistant/v3_2/service_struct_physical_exam/v3_2_0
+docker run -it -p 11030:8080  -p 11031:8081  --name struct_phy_v3_2_0 dockerdist.bdmd.com/struct-phy:20190828041746 /bin/bash
+scp -r ./v3_2_0 machaoyang@192.168.206.102:/home/machaoyang/service_struct_physical_exam
+docker cp  v3_2_0 struct_phy_v3_2_0:/ai-doctor-assistant/models/v3_2/service_struct_physical_exam
+
+
+docker cp  struct_phy_v3_2_0:/ai-doctor-assistant/models/v3_2/service_struct_physical_exam  v3_2_0_052416
+
+
+# struct_gd2h
+docker run -it -p 12010:8080 -p 12011:8081 -p 12022:22 -v /home/machaoyang/Projects/struct_emr:/struct_emr --name struct_emr_v1 dockerdist.bdmd.com/cdss_klb_renew:v1.0125 /bin/bash
+docker run -it --name struct_gd2h_v1 dockerdist.bdmd.com/cdss_klb_renew:v1.0125 /bin/bash
+
+# ############################################################
+# kubectl docker 常用命令
+通过文件名或控制台输入，对资源进行配置。 如果资源不存在，将会新建一个
+可以使用 JSON 或者 YAML 格式
+Kubectl apply -f
+
+docker build 命令用于使用 Dockerfile创建镜像
+-f :指定要使用的Dockerfile路径
+--tag, -t: 镜像的名字及标签，通常 name:tag 或者 name 格式；可以在一次构建中为一个镜像设置多个标签
+docker build -f ./cdss/deploy/dev/Dockerfile -t dockerdist.bdmd.com/cdss:v1.0331 .
+最后一个点是如果不指定-f则会从当前目录下找,如果指定-f的话则当前目录失效
+
+# 后台模式
+docker run -d ubuntu:15.10 /bin/sh -c "while true; do echo hello world; sleep 1; done"
+在输出中，我们没有看到期望的 "hello world"，而是一串长字符
+2b1b7a428627c51ab8810d541d759f072b4fc75487eed05812646b8534a2fe63
+这个长字符串叫做容器 ID，对每个容器来说都是唯一的，我们可以通过容器 ID 来查看对应的容器发生了什么。
+加了 -d 参数默认不会进入容器，想要进入容器需要使用指令 docker exec 使用docker attach进入容器后退出容器会停止而docker exec进入容器退出容器后不会停止
+
+当运行容器时，使用的镜像如果在本地中不存在，docker 就会自动从 docker 镜像仓库中下载，默认是从 Docker Hub 公共镜像源下载,不需要先docker pull
+
+# 标注平台#####################
+项目地址ai-platform app_annotation: 标注平台相关实现: 标注预览、文本标注、任务审核、任务管理、配置管理等 app_platform: AI平台相关实现: 原始病历、模型测试、知识图谱、产品演示等
+服务在kubectl get pods -n platform
+ai-platform-back-55c77cc4b-8bnp7         1/1     Running   0          5m47s
+kubectl 部署服务
+kubectl apply -f k8s.yaml
+
+# 不良反应结构化
+第一次进入容器:
+docker run -it -p 12570:8080 -p 12571:8081  -p 1122:22 --name struct_adverse_reaction -v /home/machaoyang/Projects/demonstrate:/demonstrate dockerdist.bdmd.com/cdss_base:v1 /bin/bash
+
+docker run -it --name ner_service_v1 ner-platform:1.0 /bin/bash
+
+之后进入容器:
+docker exec -it struct_adverse_reaction /bin/bash
+
+cd /demonstrate/convert_to_triple/src
+python app.py
+
+# cdss_project
+
+进入到项目根目录, /Users/machaoyang/Desktop/Projects/cdss_projects
+/Users/machaoyang/Desktop/Projects/cdss_projects/extract_data
+1. 以extract_data子项目为例,config的test为本地环境用于测试,dev为office1环境
+2. 修改deploy.sh中的v1.0316,当然也可以不改
+   docker rmi dockerdist.bdmd.com/extract_data_cdss:v1.0316
+   docker build -f ./extract_data/deploy/dev/Dockerfile -t dockerdist.bdmd.com/extract_data_cdss:v1.0316 .
+3. dockerfile文件不需要修改
+4. 把项目文件scp到远程office1上
+5. 运行 extract_data/deploy/dev/deploy.sh   然后docker ps 查看刚才操作最后得到的容器是否运行
+
+# 当前目录
+/Users/machaoyang/Desktop/Projects
+scp -r  cdss_sd machaoyang@192.168.206.101:/home/machaoyang/Projects/
+
+docker logs convert_data_cdss --since 1m
+docker logs extract_data_cdss --since 1m
+docker logs cdss_sd --since 1m
+docker logs textx_model_cdss --since 1m
+容器挂载通过docker ps 无法看出(端口可以看出),可通过docker inspect看出
+个人史结构化:
+"Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/home/machaoyang/Projects/symptom_struct",
+                "Destination": "/symptom_struct",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            }
+
+##################################################################################################################
+个人史结构化
+MODEL_DIR=/home/machaoyang/Projects/model  # 指定项目根目录
+
+## 现病史分块_3.1.0
+#sudo docker rm -f pre_his_chunk_3.1.0
+##docker  run  -p 11000:8080 -p 11001:8081 -itd --runtime=nvidia --name pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:v1 python app.py  # 没有挂载,可以直接用 说明这个镜像是你后来自己封装的 把需要的模型文件加进去了
+#docker run -itd -p 11000:8080  -p 11001:8081 --runtime=nvidia -v ${MODEL_DIR}/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0:/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0 --name pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:20191129024330  python app.py
+##docker run -itd -p 11000:8080  -p 11001:8081 --runtime=nvidia -v ${MODEL_DIR}/ai-doctor-assistant/models:/ai-doctor-assistant/models --name pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:v1  python app.py # 直接挂载到models 不知为啥挂载的v3_1_0目录下没有模型文件
+sudo docker run -it -p 11000:8080  -p 11001:8081 --gpus="device=1" -v ${MODEL_DIR}/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0:/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0 --name pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:20191129024330  python app.py
+sudo docker run -it -p 11000:8080  -p 11001:8081 --gpus="device=1" -v ${MODEL_DIR}/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0:/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0 --name pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:20191129024330  /bin/bash
+
+sudo docker run -it -p 11000:8080  -p 11001:8081 --gpus="device=1" -v /home/machaoyang/Projects/model/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0:/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0 --name pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:20191129024330  /bin/bash
+sudo docker ./app.py pre_his_chunk_3.1.0:/ai-doctor-assistant/v3_1/service_cmh_chunk/v3_1_0
+
+docker rm -f pre_his_chunk_3.1.0
+docker run -itd -p 11000:8080  -p 11001:8081 --gpus="device=1" -v ${MODEL_DIR}/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0:/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0 --name pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:20191129024330  python app.py
+
+docker commit pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:20191129024330_fix
+docker push dockerdist.bdmd.com/cmh-chunk:20191129024330_fix
+
+sudo docker run -itd -p 11010:8080  -p 11011:8081 --gpus="device=1" -v /home/machaoyang/Projects/model/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0:/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0 --name pre_his_chunk_3.1.0_v1 dockerdist.bdmd.com/cmh-chunk:20191129024330_fix  python app.py
+
+
+# 体格检查结构化_3.2.0:
+docker rm -f phy_struct_3.2.0
+#docker run -itd -p 11030:8080  -p 11031:8081 -v ${MODEL_DIR}/ai-doctor-assistant/models/v3_2/service_struct_physical_exam/v3_2_0:/ai-doctor-assistant/models/v3_2/service_struct_physical_exam/v3_2_0 --name phy_struct_3.2.0 dockerdist.bdmd.com/struct-phy:20190828041746  python app.py
+
+## 症状结构化_3.1.2:
+docker rm -f sym_struct_3.1.2
+#docker run -itd -p 11010:8080  -p 11011:8081  -v ${MODEL_DIR}/ai-services/struct_sym_v3_1_2:/model --name sym_struct_3.1.2 dockerdist.bdmd.com/service_struct_symptom:20190918074629_fix  python3 app.py data
+
+## 个人史结构化3.2.5
+docker rm -f per_his_v3.2.5
+docker run -itd -p 11040:8080  -p 11041:8081  -v ${MODEL_DIR}/ai-doctor-assistant/models:/ai-doctor-assistant/models --name per_his_v3.2.5 dockerdist.bdmd.com/per-his:v3.2.5  python app.py
+
+# 治疗史结构化_1.0.0:
+docker rm -f cure_his_v1.0.0
+#docker run -itd -p 11130:8080  -p 11131:8081  -v ${MODEL_DIR}/ai-doctor-assistant/models:/ai-doctor-assistant/models --name cure_his_v1.0.0 dockerdist.bdmd.com/symptom_struct_cuda_gemotric:v1  python app.py
+#docker run -it -p 11130:8080  -p 11131:8081  -v ${MODEL_DIR}/ai-doctor-assistant/models:/ai-doctor-assistant/models --name cure_his_v1.0.0 dockerdist.bdmd.com/symptom_struct_cuda_gemotric:v1  /bin/bash
+
+## 化验结构化3.0.1:
+docker rm -f lab_struct_3.0.1
+docker run -itd -p 11020:8080  -p 11021:8081 -v ${MODEL_DIR}/ai-doctor-assistant/models/v3_0/service_lab_relation/v3_0_1:/ai-doctor-assistant/models/v3_0/service_lab_relation/v3_0_1 --name lab_struct_3.0.1 dockerdist.bdmd.com/lab-rela:20190828014444  python app.py
+
+
+## 66种病为语料训练得到的检查结构化1.1:
+docker rm -f exam_struct_1.1
+docker run -itd -p 11120:8080  -p 11121:8081  -v ${MODEL_DIR}/ai-services/struct_exam66_v1_1:/model --name exam_struct_1.1 dockerdist.bdmd.com/service_struct_exam66:20190806062713  python app.py
+
+# 心电图结构化1.1:
+docker rm -f ecg_struct_1.1
+docker run -itd -p 11050:8080  -p 11051:8081  -v ${MODEL_DIR}/ai-services/struct_ecg_v1_1:/model --name ecg_struct_1.1 dockerdist.bdmd.com/service_struct_ecg:20190726073113 python app.py
+
+# 既往史结构化模型3.2.0
+docker rm -f past_his_struct_3.2.0
+docker run -itd -p 11060:8080  -p 11061:8081  -v ${MODEL_DIR}/ai-doctor-assistant/models:/ai-doctor-assistant/models --name past_his_struct_3.2.0 dockerdist.bdmd.com/past-his:20200518044930  python app.py
+
+# 家族史结构化模型3.2.0
+docker rm -f family_his_struct_3.2.0
+docker run -itd -p 11070:8080  -p 11071:8081  -v ${MODEL_DIR}/ai-doctor-assistant/models:/ai-doctor-assistant/models --name family_his_struct_3.2.0 dockerdist.bdmd.com/fam-his:20200518043707  python app.py
+
+
+# ##################################################################################################################
+# 北京 k8s  cdss   document_parser 南京k8s   convert_data extract_data cdss_sd office1
+# kubectl logs 常用于将容器中的日志导出 kubectl logs [-f] [-p] POD [-c CONTAINER]  -p 如果为true，输出pod中曾经运行过，但目前已终止的容器的日志  -c, --container="": 容器名 如果一个pod中只有一个容器，则不用指定容器名
+kubectl get pod -n cdss
+kubectl logs redis-cdss-6db9465d7f-tzhz5 -n cdss
+kubectl logs  pulsar-8dfbd74dc-zgj6s -n cdss --since 1m
+kubectl logs  pulsar-8dfbd74dc-zgj6s -c 容器名或者容器id  -n cdss --since 1m
+
+kubectl get pod --all-namespaces -o wide  # 所有命名空间
+kubectl get pod -n cdss -o wide  # 所有命名空间
+
+k8s进入指定pod下的指定容器的命令
+kubectl --namespace=default exec -it user-deployment-54469dd57-vg87g --container user -- sh
+
+本地测试流程
+先启动textx_model服务,脚本路径在textx_model/src/main.py
+然后在启动cdss_sd服务,脚本路径在cdss_sd/src/main.py
+最后启动local_test_for_qc/测试.py
+
+# 测试病历的构建
+1.使用代码改动
+2.直接在病历文件中修改
+3.不修改病例,直接拿大量病历去跑,看哪一个病历可以命中规则 ✅
+
+单元测试
+结果为负样本 你不知道是原始数据是负样本还是代码写的有问题
+
+convert_data extract_data cdss_sd
+cdss_sd 所有规则已测 ✅
+从ffn中取一个病历, convert_data 保证没问题 输出满足预期
+测规则的前提是已经完成了convert_data的单元测试,测规则是系统测试
+
+手术记录中create_time没有,需要在parse_and_contrast.yaml中添加
+
+如果直接的变量提取函数,没有调用,不一定这个函数就没真的调用,而是通过global函数调用了(如果配置表中也没有这个函数的名字,则就是没使用),其他间接函数则是整个项目中没有使用就是真的没有使用
+
+只有在yaml配置中加的都差不多了,才能重新部署,不然加一个就得重新启动服务,并且需要重新跑所有病历存到redis
+
+extract_data 配置文件:extract_data/src/common/data的cdss_data.xlsx和common_data.py
+
+ssh ubuntu@192.168.60.16
+BDMDbdmd1234
