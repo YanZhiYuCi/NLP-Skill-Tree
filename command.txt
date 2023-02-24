@@ -138,6 +138,7 @@ kubectl get deploy struct-sym-v3-1-2 -n model-nj -o yaml
 kubectl get deploy struct-phy-v3-2-0 -n model-nj -o yaml
 kubectl get deploy struct-exam66-v1-1 -n model-nj -o yaml
 
+
 # kubectl相关指令:
 # 查看有哪些名称空间
 kubectl get ns
@@ -164,15 +165,6 @@ docker  run  -p 3022:22 -p 8880:8080 -p 8881:8081 -p 8882:8081 -it --runtime=nvi
 docker  run  -p 4022:22 -p 8880:8080 -p 8881:8081 -p 8882:8081 -it --runtime=nvidia  --name symptom_struct_v1 -v /home/machaoyang/Projects/symptom_struct:/symptom_struct dockerdist.bdmd.com/symptom_struct_cuda_gemotric:v1 /bin/bash
 docker  run  -p 4022:22 -p 8880:8080 -p 8881:8081 -p 8882:8081 -it --runtime=nvidia  --name cure_struct_v1.0.0 -v /home/machaoyang/Projects/symptom_struct:/symptom_struct dockerdist.bdmd.com/symptom_struct_cuda_gemotric:cure_struct /bin/bash
 docker  run  -p 11130:8080  -p 11131:8081 -itd -w /symptom_struct/zk_jws --runtime=nvidia  --name cure_his_struct_1.0.0 dockerdist.bdmd.com/symptom_struct_cuda_gemotric:cure_struct_1.0.0 python3 app.py
-
-
-
-
-
-# 症状结构化3.1.2修改和启动方式
-将 import options_rc 直接改成from fairseq import options
-python app.py data
-docker run -it -p 11010:8080  -p 11011:8081  --name struct_symptom_v3_1_2 dockerdist.bdmd.com/service_struct_symptom:20190918074629 /bin/bash
 
 # mac 连接复兴
 ssh -L 0.0.0.0:10020:10.8.0.6:22 machaoyang@192.168.206.102
@@ -303,9 +295,6 @@ python app.py
 scp -r  cdss_sd machaoyang@192.168.206.101:/home/machaoyang/Projects/
 
 docker logs convert_data_cdss --since 1m
-docker logs extract_data_cdss --since 1m
-docker logs cdss_sd --since 1m
-docker logs textx_model_cdss --since 1m
 容器挂载通过docker ps 无法看出(端口可以看出),可通过docker inspect看出
 个人史结构化:
 "Mounts": [
@@ -382,7 +371,7 @@ docker run -itd -p 11070:8080  -p 11071:8081  -v ${MODEL_DIR}/ai-doctor-assistan
 
 
 # ##################################################################################################################
-# 北京 k8s  cdss   document_parser 南京k8s   convert_data extract_data cdss_sd office1
+输出pod中一个容器的日志。如果pod只包含一个容器则可以省略容器名。容器内程序输出到标准输出的内容。如要获得tail -f 的方式，也可以使用-f选项
 # kubectl logs 常用于将容器中的日志导出 kubectl logs [-f] [-p] POD [-c CONTAINER]  -p 如果为true，输出pod中曾经运行过，但目前已终止的容器的日志  -c, --container="": 容器名 如果一个pod中只有一个容器，则不用指定容器名
 kubectl get pod -n cdss
 kubectl logs redis-cdss-6db9465d7f-tzhz5 -n cdss
@@ -395,31 +384,10 @@ kubectl get pod -n cdss -o wide  # 所有命名空间
 k8s进入指定pod下的指定容器的命令
 kubectl --namespace=default exec -it user-deployment-54469dd57-vg87g --container user -- sh
 
-本地测试流程
-先启动textx_model服务,脚本路径在textx_model/src/main.py
-然后在启动cdss_sd服务,脚本路径在cdss_sd/src/main.py
-最后启动local_test_for_qc/测试.py
 
-# 测试病历的构建
-1.使用代码改动
-2.直接在病历文件中修改
-3.不修改病例,直接拿大量病历去跑,看哪一个病历可以命中规则 ✅
-
-单元测试
-结果为负样本 你不知道是原始数据是负样本还是代码写的有问题
-
-convert_data extract_data cdss_sd
-cdss_sd 所有规则已测 ✅
-从ffn中取一个病历, convert_data 保证没问题 输出满足预期
-测规则的前提是已经完成了convert_data的单元测试,测规则是系统测试
-
-手术记录中create_time没有,需要在parse_and_contrast.yaml中添加
 
 如果直接的变量提取函数,没有调用,不一定这个函数就没真的调用,而是通过global函数调用了(如果配置表中也没有这个函数的名字,则就是没使用),其他间接函数则是整个项目中没有使用就是真的没有使用
 
-只有在yaml配置中加的都差不多了,才能重新部署,不然加一个就得重新启动服务,并且需要重新跑所有病历存到redis
-
-extract_data 配置文件:extract_data/src/common/data的cdss_data.xlsx和common_data.py
 
 ssh ubuntu@192.168.60.16
 BDMDbdmd1234
