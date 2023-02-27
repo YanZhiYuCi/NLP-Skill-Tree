@@ -385,13 +385,11 @@ k8s进入指定pod下的指定容器的命令
 kubectl --namespace=default exec -it user-deployment-54469dd57-vg87g --container user -- sh
 
 kubectl get pod -n pie-engine-common
-kubectl get pod -n pie-engine-ai
 
 kubectl get namespace
 
 kubectl describe algo-549244570518724608-20230224150150-6c65746765-6zzk4
 kubectl get pods -n pie-engine-common
-algo-549274035936337920-20230224165855-665bdd958f-qz92h
 
 如果直接的变量提取函数,没有调用,不一定这个函数就没真的调用,而是通过global函数调用了(如果配置表中也没有这个函数的名字,则就是没使用),其他间接函数则是整个项目中没有使用就是真的没有使用
 
