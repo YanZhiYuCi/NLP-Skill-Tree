@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*
+
 """
     pathlib:python标准库，路径处理库，比os标准库更好用，可以方便获取文件或者目录的名字、文件后缀名等，
         不同系统上路径的表示方式，pathlib可以同时兼容windows和linux风格的路径风格
