@@ -168,3 +168,33 @@ print(a is c)
 
 b = [a, a]  # b [[1, 2, 3], [1, 2, 3]]
 a.append(4)  # b [[1, 2, 3, 4], [1, 2, 3, 4]]
+
+
+class ParallelTransformer:
+    def __init__(self):
+        self.data = [1, 2]
+
+    def my_function(self):
+        self.sum = 1.0
+        def custom_1():
+            self.sum = 1.0 + 2
+            temp = self.data  # 虽然在pycharm中这里的self没有再显示成紫色,仍然可以用
+            logger.info('custom_1:{}'.format(temp))
+            logger.info('custom_1_sum:{}'.format(self.sum))
+
+            def custom_2():
+                temp1 = self.data
+                logger.info('custom_2:{}'.format(temp))  # 即使再第二层闭包里仍然可以用
+                return temp1
+
+            return custom_2()
+
+        res = custom_1()
+        logger.info('my_function_sum:{}'.format(self.sum))
+        return res
+
+
+if __name__ == '__main__':
+    c = ParallelTransformer()
+    temp_ = c.my_function()
+    logger.info('out:{}'.format(temp_))
