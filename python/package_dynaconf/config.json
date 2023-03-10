@@ -1,0 +1,11 @@
+{
+    "local": {
+        "age": "18"
+    },
+    "development": {
+        "age": "28"
+    },
+    "production": {
+        "age": "38"
+    }
+}
