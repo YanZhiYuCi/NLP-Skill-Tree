@@ -1,11 +1,14 @@
 {
     "local": {
-        "age": "18"
+        "age": {"cat": 18},
+        "nation": "美国"
     },
     "development": {
-        "age": "28"
+        "age": {"cat": 28},
+        "nation": "中国"
     },
     "production": {
-        "age": "38"
+        "age": {"cat": 38},
+        "nation": "新加坡"
     }
 }

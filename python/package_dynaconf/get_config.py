@@ -4,17 +4,22 @@ from dynaconf import Dynaconf
 
 settings = Dynaconf(
     envvar_prefix="DYNACONF",
-    settings_files='config.json',
+    settings_files='config_1.json',
     environments=True
 )
 
 # 设置环境变量的方法#######################################################################################################
 
-# # 方法a: 在代码中直接设置
-# os.environ['ENV_FOR_DYNACONF'] = 'local'
-# os.environ['ENV_FOR_DYNACONF'] = 'development'
-# os.environ['ENV_FOR_DYNACONF'] = 'production'
-# print('age值为:{}'.format(settings.age))
+# 方法a: 在代码中直接设置
+os.environ['ENV_FOR_DYNACONF'] = 'local'
+os.environ['ENV_FOR_DYNACONF'] = 'development'
+os.environ['ENV_FOR_DYNACONF'] = 'production'
+print('age值为:{}'.format(settings.age))
+print('age.cat值为:{}'.format(settings.age.cat))
+print('age.cat值为:{}'.format(settings.age['cat']))
+print('nation值为:{}'.format(settings.nation))
+print('nation值为:{}'.format(settings.nation))
+print('nation值为:{}'.format(settings.nation))
 
 # 方法b: 在pycharm-->run-->配置-->环境变量  ENV_FOR_DYNACONF='local' 可不加引号 如果前边有变量 需要在前一个变量后边增加一个;
 # 例如PYTHONUNBUFFERED=1;ENV_FOR_DYNACONF='local'
