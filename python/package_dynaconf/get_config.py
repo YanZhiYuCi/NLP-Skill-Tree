@@ -22,4 +22,4 @@ print('age值为:{}'.format(settings.age))
 
 # 方法c: 命令行执行 python get_config.py ENV_FOR_DYNACONF='local'
 
-# 方法d: Dockfile设置 ENV ENV_FOR_DYNACONF local
+# 方法d: Dockerfile设置 ENV ENV_FOR_DYNACONF local
