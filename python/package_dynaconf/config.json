@@ -1,14 +1,17 @@
 {
     "local": {
         "age": {"cat": 18},
-        "nation": "美国"
+        "nation": "美国",
+        "ExamScore": 90
     },
     "development": {
         "age": {"cat": 28},
-        "nation": "中国"
+        "nation": "中国",
+        "ExamScore": 80
     },
     "production": {
         "age": {"cat": 38},
-        "nation": "新加坡"
+        "nation": "新加坡",
+        "ExamScore": 60
     }
 }
