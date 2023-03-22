@@ -1,4 +1,7 @@
 # -*- coding: UTF-8 -*
+"""
+本示例改编自spacy2.3.8的ner示例,目的是在3.2.0上跑通
+"""
 import os
 import sys
 import random
@@ -23,6 +26,8 @@ jsonl_train_path: str = os.path.join(current_file_dir, 'cluener_public/train.jso
 jsonl_dev_path: str = os.path.join(current_file_dir, 'cluener_public/dev.jsonl')
 raw_train_data: List[Dict] = [per_data for per_data in jsonlines.open(jsonl_train_path)]
 raw_dev_data: List[Dict] = [per_data for per_data in jsonlines.open(jsonl_dev_path)]
+raw_train_data = raw_train_data[:1000]
+raw_dev_data = raw_dev_data[:200]
 train_data = convert_data(raw_train_data)
 dev_data = convert_data(raw_dev_data)
 
@@ -73,7 +78,7 @@ with nlp.disable_pipes(*other_pipes):  # only train NER
     for itn in range(epochs):
         random.shuffle(train_data)
         losses = {}
-        sizes = 32
+        sizes = 16
         batches = minibatch(train_data, size=sizes)
         for batch in batches:
             """
@@ -82,10 +87,12 @@ with nlp.disable_pipes(*other_pipes):  # only train NER
             To work with overlapping entities, consider using doc.spans instead.
             """
             try:
+                c = nlp.make_doc(batch[0][0])
+                c1 = batch[0][1]
                 example_batch = [Example.from_dict(nlp.make_doc(sample[0]), sample[1]) for sample in batch]
             except:
                 continue
-            nlp.update(example_batch, sgd=optimizer, drop=0.5, losses=losses)
+            nlp.update(example_batch, sgd=optimizer, drop=0.35, losses=losses)
 
         loss.append(losses["ner"])
 
