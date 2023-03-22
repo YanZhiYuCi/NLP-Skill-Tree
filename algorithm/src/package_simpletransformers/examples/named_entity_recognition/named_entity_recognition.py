@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from scipy.special import softmax
 
-from simpletransformers.ner import NERModel
+from simpletransformers.ner import NERModel, NERArgs
 
 # Creating train_df  and eval_df for demonstration
 train_data = [[0, "Simple", "B-MISC"], [0, "Transformers", "I-MISC"], [0, "started", "O"], [0, "with", "O"],
@@ -16,20 +16,37 @@ eval_data = [[0, "Simple", "B-MISC"], [0, "Transformers", "I-MISC"], [0, "was", 
              [1, "NER", "B-MISC"], ]
 eval_df = pd.DataFrame(eval_data, columns=["sentence_id", "words", "labels"])
 
+# # Create a NERModel
+# model = NERModel(
+#     "bert",
+#     "bert-base-cased",
+#     args={"overwrite_output_dir": True, "reprocess_input_data": True, "use_multiprocessing": False,
+#           "dataloader_num_workers": 0, "process_count": 1, "use_multiprocessing_for_evaluation": False},
+#     use_cuda=False
+# )
+
+model_args = NERArgs()
+model_args.num_train_epochs = 2
+
+model_args.process_count = 1
+model_args.use_multiprocessing = False
+model_args.overwrite_output_dir = True
+model_args.dataloader_num_workers = 0
+model_args.use_multiprocessing_for_evaluation = False
+model_args.reprocess_input_data = True
+model_args.evaluate_during_training = True
+model_args.save_model_every_epoch = False
+model_args.save_eval_checkpoints = False
+model_args.save_steps = -1
+
 # Create a NERModel
-model = NERModel(
-    "bert",
-    "bert-base-cased",
-    args={"overwrite_output_dir": True, "reprocess_input_data": True, "use_multiprocessing": False,
-          "dataloader_num_workers": 0, "process_count": 1, "use_multiprocessing_for_evaluation": False},
-    use_cuda=False
-)
+model = NERModel("bert", "bert-base-cased", args=model_args, use_cuda=False)
 
 # Train the model
-model.train_model(train_df)
+model.train_model(train_df, eval_data=eval_df)
 
 # Evaluate the model
-result, model_outputs, predictions = model.eval_model(eval_df)
+# result, model_outputs, predictions = model.eval_model(eval_df)
 
 # Predictions on arbitary text strings
 sentences = ["Some arbitary sentence", "Simple Transformers sentence"]
