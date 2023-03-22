@@ -325,23 +325,18 @@ sudo docker ./app.py pre_his_chunk_3.1.0:/ai-doctor-assistant/v3_1/service_cmh_c
 docker rm -f pre_his_chunk_3.1.0
 docker run -itd -p 11000:8080  -p 11001:8081 --gpus="device=1" -v ${MODEL_DIR}/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0:/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0 --name pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:20191129024330  python app.py
 
+将容器打包成镜像:
 docker commit pre_his_chunk_3.1.0 dockerdist.bdmd.com/cmh-chunk:20191129024330_fix
+推送镜像:
 docker push dockerdist.bdmd.com/cmh-chunk:20191129024330_fix
+镜像导出:
+docker save -o /data/pytorch-nlp-devel:1.10.1.tar 172.16.20.21:1180/pie-engine-training/pytorch-nlp-devel:1.10.1
+镜像导入:
+docker load -i /data/pytorch-nlp-devel:1.10.1.tar 172.16.20.21:1180/pie-engine-training/pytorch-nlp-devel:1.10.1
+镜像改名:
+docker image tag 172.16.20.21:1180/pie-engine-training/pytorch-nlp-devel:1.10.1_with_dynaconf 172.16.20.21:1180/pie-engine-training/pytorch-nlp-devel:1.10.1
 
 sudo docker run -itd -p 11010:8080  -p 11011:8081 --gpus="device=1" -v /home/machaoyang/Projects/model/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0:/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0 --name pre_his_chunk_3.1.0_v1 dockerdist.bdmd.com/cmh-chunk:20191129024330_fix  python app.py
-
-
-# 体格检查结构化_3.2.0:
-docker rm -f phy_struct_3.2.0
-#docker run -itd -p 11030:8080  -p 11031:8081 -v ${MODEL_DIR}/ai-doctor-assistant/models/v3_2/service_struct_physical_exam/v3_2_0:/ai-doctor-assistant/models/v3_2/service_struct_physical_exam/v3_2_0 --name phy_struct_3.2.0 dockerdist.bdmd.com/struct-phy:20190828041746  python app.py
-
-## 症状结构化_3.1.2:
-docker rm -f sym_struct_3.1.2
-#docker run -itd -p 11010:8080  -p 11011:8081  -v ${MODEL_DIR}/ai-services/struct_sym_v3_1_2:/model --name sym_struct_3.1.2 dockerdist.bdmd.com/service_struct_symptom:20190918074629_fix  python3 app.py data
-
-## 个人史结构化3.2.5
-docker rm -f per_his_v3.2.5
-docker run -itd -p 11040:8080  -p 11041:8081  -v ${MODEL_DIR}/ai-doctor-assistant/models:/ai-doctor-assistant/models --name per_his_v3.2.5 dockerdist.bdmd.com/per-his:v3.2.5  python app.py
 
 # 治疗史结构化_1.0.0:
 docker rm -f cure_his_v1.0.0
@@ -351,24 +346,6 @@ docker rm -f cure_his_v1.0.0
 ## 化验结构化3.0.1:
 docker rm -f lab_struct_3.0.1
 docker run -itd -p 11020:8080  -p 11021:8081 -v ${MODEL_DIR}/ai-doctor-assistant/models/v3_0/service_lab_relation/v3_0_1:/ai-doctor-assistant/models/v3_0/service_lab_relation/v3_0_1 --name lab_struct_3.0.1 dockerdist.bdmd.com/lab-rela:20190828014444  python app.py
-
-
-## 66种病为语料训练得到的检查结构化1.1:
-docker rm -f exam_struct_1.1
-docker run -itd -p 11120:8080  -p 11121:8081  -v ${MODEL_DIR}/ai-services/struct_exam66_v1_1:/model --name exam_struct_1.1 dockerdist.bdmd.com/service_struct_exam66:20190806062713  python app.py
-
-# 心电图结构化1.1:
-docker rm -f ecg_struct_1.1
-docker run -itd -p 11050:8080  -p 11051:8081  -v ${MODEL_DIR}/ai-services/struct_ecg_v1_1:/model --name ecg_struct_1.1 dockerdist.bdmd.com/service_struct_ecg:20190726073113 python app.py
-
-# 既往史结构化模型3.2.0
-docker rm -f past_his_struct_3.2.0
-docker run -itd -p 11060:8080  -p 11061:8081  -v ${MODEL_DIR}/ai-doctor-assistant/models:/ai-doctor-assistant/models --name past_his_struct_3.2.0 dockerdist.bdmd.com/past-his:20200518044930  python app.py
-
-# 家族史结构化模型3.2.0
-docker rm -f family_his_struct_3.2.0
-docker run -itd -p 11070:8080  -p 11071:8081  -v ${MODEL_DIR}/ai-doctor-assistant/models:/ai-doctor-assistant/models --name family_his_struct_3.2.0 dockerdist.bdmd.com/fam-his:20200518043707  python app.py
-
 
 # ##################################################################################################################
 输出pod中一个容器的日志。如果pod只包含一个容器则可以省略容器名。容器内程序输出到标准输出的内容。如要获得tail -f 的方式，也可以使用-f选项
@@ -393,6 +370,7 @@ kubectl get pods -n pie-engine-common
 
 如果直接的变量提取函数,没有调用,不一定这个函数就没真的调用,而是通过global函数调用了(如果配置表中也没有这个函数的名字,则就是没使用),其他间接函数则是整个项目中没有使用就是真的没有使用
 
-
-ssh ubuntu@192.168.60.16
-BDMDbdmd1234
+# 安装复合某个版本区间的包
+pip install "spacy-pkuseg>=0.0.27,<0.1.0"
+# 搜索要安装的包的所有版本
+pip install typing-extensions==
