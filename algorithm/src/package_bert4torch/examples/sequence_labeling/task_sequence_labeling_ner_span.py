@@ -20,14 +20,20 @@ categories = ['LOC', 'PER', 'ORG']
 categories_id2label = {i: k for i, k in enumerate(categories, start=1)}
 categories_label2id = {k: i for i, k in enumerate(categories, start=1)}
 
-# BERT base
-config_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/bert_config.json'
-checkpoint_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/pytorch_model.bin'
-dict_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/vocab.txt'
+# # BERT base
+# config_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/bert_config.json'
+# checkpoint_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/pytorch_model.bin'
+# dict_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/vocab.txt'
+
+config_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\bert-base-chinese\config.json'
+checkpoint_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\bert-base-chinese\pytorch_model.bin'
+dict_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\bert-base-chinese\vocab.txt'
+
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # 固定seed
 seed_everything(42)
+
 
 # 加载数据集
 class MyDataset(ListDataset):
@@ -53,6 +59,7 @@ class MyDataset(ListDataset):
 
 # 建立分词器
 tokenizer = Tokenizer(dict_path, do_lower_case=True)
+
 
 def collate_fn(batch):
     batch_token_ids, batch_start_labels, batch_end_labels = [], [], []
@@ -81,22 +88,28 @@ def collate_fn(batch):
     batch_mask = batch_token_ids.gt(0).long()
     return [batch_token_ids], [batch_mask, batch_start_labels, batch_end_labels]
 
+
 # 转换数据集
-train_dataloader = DataLoader(MyDataset('F:/Projects/data/corpus/ner/china-people-daily-ner-corpus/example.train'), batch_size=batch_size, shuffle=True, collate_fn=collate_fn) 
-valid_dataloader = DataLoader(MyDataset('F:/Projects/data/corpus/ner/china-people-daily-ner-corpus/example.dev'), batch_size=batch_size, collate_fn=collate_fn) 
+train_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\china-people-daily-ner-corpus\example.train'
+eval_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\china-people-daily-ner-corpus\example.dev'
+
+train_dataloader = DataLoader(MyDataset(train_path)[0:10], batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
+valid_dataloader = DataLoader(MyDataset(train_path)[0:10], batch_size=batch_size, collate_fn=collate_fn)
+
 
 # 定义bert上的模型结构
 class Model(BaseModel):
     def __init__(self):
         super().__init__()
-        self.bert = build_transformer_model(config_path=config_path, checkpoint_path=checkpoint_path, segment_vocab_size=0)
+        self.bert = build_transformer_model(config_path=config_path, checkpoint_path=checkpoint_path,
+                                            segment_vocab_size=0)
         self.mid_linear = nn.Sequential(
             nn.Linear(768, 128),
             nn.ReLU(),
             nn.Dropout(0.1)
         )
-        self.start_fc = nn.Linear(128, len(categories)+1)  # 0表示没有
-        self.end_fc = nn.Linear(128, len(categories)+1)
+        self.start_fc = nn.Linear(128, len(categories) + 1)  # 0表示没有
+        self.end_fc = nn.Linear(128, len(categories) + 1)
 
     def forward(self, token_ids):
         sequence_output = self.bert(token_ids)  # [bts, seq_len, hdsz]
@@ -109,12 +122,13 @@ class Model(BaseModel):
 
 model = Model().to(device)
 
+
 class Loss(nn.CrossEntropyLoss):
     def forward(self, outputs, labels):
         start_logits, end_logits = outputs
         mask, start_ids, end_ids = labels
-        start_logits = start_logits.view(-1, len(categories)+1)
-        end_logits = end_logits.view(-1, len(categories)+1)
+        start_logits = start_logits.view(-1, len(categories) + 1)
+        end_logits = end_logits.view(-1, len(categories) + 1)
 
         # 去掉padding部分的标签，计算真实 loss
         active_loss = mask.view(-1) == 1
@@ -126,6 +140,7 @@ class Loss(nn.CrossEntropyLoss):
         start_loss = super().forward(active_start_logits, active_start_labels)
         end_loss = super().forward(active_end_logits, active_end_labels)
         return start_loss + end_loss
+
 
 model.compile(loss=Loss(), optimizer=optim.Adam(model.parameters(), lr=2e-5))
 
@@ -143,7 +158,7 @@ def evaluate(data):
         X += len(entity_pred.intersection(entity_true))
         Y += len(entity_pred)
         Z += len(entity_true)
-    f1, precision, recall = 2 * X / (Y + Z), X/ Y, X / Z
+    f1, precision, recall = 2 * X / (Y + Z), X / Y, X / Z
     return f1, precision, recall
 
 
@@ -152,7 +167,7 @@ def span_decode(start_preds, end_preds, mask=None):
     '''返回实体的start, end
     '''
     predict_entities = set()
-    if mask is not None: # 把padding部分mask掉
+    if mask is not None:  # 把padding部分mask掉
         start_preds = torch.argmax(start_preds, -1) * mask
         end_preds = torch.argmax(end_preds, -1) * mask
 
@@ -169,7 +184,7 @@ def span_decode(start_preds, end_preds, mask=None):
             for j, e_type in enumerate(end_pred[i:]):
                 if s_type == e_type:
                     # [样本id, 实体起点，实体终点，实体类型]
-                    predict_entities.add((bt_i, i, i+j, categories_id2label[s_type]))
+                    predict_entities.add((bt_i, i, i + j, categories_id2label[s_type]))
                     break
     return predict_entities
 
@@ -177,6 +192,7 @@ def span_decode(start_preds, end_preds, mask=None):
 class Evaluator(Callback):
     """评估与保存
     """
+
     def __init__(self):
         self.best_val_f1 = 0.
 
@@ -190,10 +206,11 @@ class Evaluator(Callback):
 
 if __name__ == '__main__':
 
+    num_epoch = 500
     evaluator = Evaluator()
 
-    model.fit(train_dataloader, epochs=20, steps_per_epoch=None, callbacks=[evaluator])
+    model.fit(train_dataloader, epochs=num_epoch, steps_per_epoch=None, callbacks=[evaluator])
 
-else: 
+else:
 
     model.load_weights('best_model.pt')
