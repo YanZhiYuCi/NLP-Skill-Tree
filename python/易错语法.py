@@ -216,3 +216,29 @@ import uuid
 print(uuid.uuid1())  # 308490b6-afe4-11eb-95f7-0c4de9a0c5af
 # 生成一个随机UUID 通过伪随机数得到uuid，具有一定的概率重复（开发使用最多）
 print(uuid.uuid4())  # 93bc700b-253e-4081-a358-24b60591076a
+
+# 全局变量################################################################################################################
+b = {'1': 1}
+c = 0
+
+
+def change1():
+    b['2'] = 2
+    # global c
+    c = 1
+
+
+def change2():
+    b['2'] = 3
+
+
+print(b)
+print(c)
+change1()
+print(b)
+print(c)
+change2()
+print(b)
+print(c)
+
+
