@@ -23,6 +23,7 @@ if __name__ == '__main__':
     # 'records' : list like [{column -> value}, ... , {column -> value}]
     # 使用pandas读取excel为dataframe,然后转成熟悉的字典列表,经过处理之后再写入excel
     data_dict_list: List[Dict] = dataframe.to_dict(orient='records')
+    dataframe = dataframe.sort_values(by=['编号'], ascending=[False])
     dataframe.to_excel(current_write_path, sheet_name='检验', index=False)
 
     # 读写csv#############################################################################################################
