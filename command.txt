@@ -67,6 +67,8 @@ netstat -tunlp | grep 2181
 # nohup
 nohup python train.py >> train_log.log 2>&1 &  追加到文件
 nohup python train.py > train_log.log 2>&1 &   清空之前文件内容新加
+nohup python spert.py train --config configs/example_train.conf > train_log.log 2>&1 &
+CUDA_VISIBLE_DEVICES=1 python spert.py train --config configs/example_train.conf > train_log.log 2>&1 &
 nohup ./启动.sh > log/不良反应_token_cls_index_no_blank_1.log 2>&1 &
 
 # tensorboard
@@ -378,3 +380,6 @@ pip install typing-extensions==
 python train_reward_model.py  --model "nghuyong/ernie-3.0-base-zh"  --train_path "data/reward_datasets/sentiment_analysis/train.tsv" --dev_path "data/reward_datasets/sentiment_analysis/dev.tsv" --save_dir "checkpoints/reward_model/sentiment_analysis" --img_log_dir "logs/reward_model/sentiment_analysis"  --img_log_name "ERNIE Reward Model" --batch_size 32 --max_seq_len 128 --learning_rate 1e-5 --valid_steps 50 --logging_steps 10 --num_train_epochs 10 --device "cuda:0"
 
 --model "data/roberta-base-finetuned-jd-binary-chinese"  --train_path "data/reward_datasets/sentiment_analysis/train.tsv" --dev_path "data/reward_datasets/sentiment_analysis/dev.tsv" --save_dir "checkpoints/reward_model/sentiment_analysis" --img_log_dir "logs/reward_model/sentiment_analysis"  --img_log_name "ERNIE Reward Model" --batch_size 32 --max_seq_len 128 --learning_rate 1e-5 --valid_steps 50 --logging_steps 10 --num_train_epochs 2 --device "cpu"
+
+
+docker commit python3_jieba rackspacedot/python37:chatGLM
