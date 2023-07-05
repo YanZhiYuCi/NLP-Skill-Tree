@@ -79,6 +79,7 @@ class Engineer:
 dain = Engineer('Dain')
 print(dain._Engineer__starting_salary)  # 62000
 
+
 # 在类中使用 + 操作符######################################################################################################
 class Expenses:
     def __init__(self, rent, groceries):
@@ -96,6 +97,8 @@ may_expenses = Expenses(1000, 300)
 total_expenses = april_expenses + may_expenses
 print(total_expenses.rent)  # 2000
 print(total_expenses.groceries)  # 500
+
+
 # 同样的，== 操作符使用__eq__方法###########################################################################################
 class Journey:
     def __init__(self, location, destination, duration):
@@ -113,6 +116,7 @@ first = Journey('Location A', 'Destination A', '30min')
 second = Journey('Location B', 'Destination B', '30min')
 
 print(first == second)
+
 
 # 为类的对象定义自定义的可打印版本############################################################################################
 class Rectangle:
@@ -166,7 +170,7 @@ string = "四二六七三"
 print(string.isdigit())  # False
 print(string.isnumeric())  # True
 # 在元组中嵌套列表和元组####################################################################################################
-mixed_tuple = (("a"*10, 3, 4), ['first', 'second', 'third'])
+mixed_tuple = (("a" * 10, 3, 4), ['first', 'second', 'third'])
 
 print(mixed_tuple[1])  # ['first', 'second', 'third']
 print(mixed_tuple[0])  # ('aaaaaaaaaa', 3, 4)
@@ -241,4 +245,7 @@ change2()
 print(b)
 print(c)
 
-
+# 元组
+a = {(1, 2), (3, 4)}
+b = {(1, 2), (5, 6)}
+a1 = a & b
