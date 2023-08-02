@@ -11,8 +11,10 @@ from random import sample
 
 batch_size = 16
 learning_rate = 1e-5
-train_path = 'E:/Github/bert4torch/examples/sequence_labeling/uie/data/final_data/train.txt'
-dev_path = 'E:/Github/bert4torch/examples/sequence_labeling/uie/data/final_data/dev.txt'
+# train_path = 'E:/Github/bert4torch/examples/sequence_labeling/uie/data/final_data/train.txt'
+# dev_path = 'E:/Github/bert4torch/examples/sequence_labeling/uie/data/final_data/dev.txt'
+train_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\examples\sequence_labeling\uie\data\final_data/train.txt'
+dev_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\examples\sequence_labeling\uie\data\final_data/dev.txt'
 save_dir = './'
 max_seq_len = 256
 num_epochs = 10
@@ -156,7 +158,9 @@ def map_offset(ori_offset, offset_mapping):
 
 # 数据准备
 train_ds = IEDataset(train_path, tokenizer=tokenizer, max_seq_len=max_seq_len, fewshot=None)
-dev_ds = IEDataset(dev_path, tokenizer=tokenizer, max_seq_len=max_seq_len) 
+train_ds.dataset = train_ds.dataset[:100]
+dev_ds = IEDataset(dev_path, tokenizer=tokenizer, max_seq_len=max_seq_len)
+dev_ds.dataset = dev_ds.dataset[:100]
 train_dataloader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
 valid_dataloader = DataLoader(dev_ds, batch_size=batch_size, collate_fn=collate_fn)
 

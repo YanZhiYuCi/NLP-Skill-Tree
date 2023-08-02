@@ -5,9 +5,12 @@ from bert4torch.tokenizers import Tokenizer
 from bert4torch.models import build_transformer_model, BERT
 
 
-config_path = 'F:/Projects/pretrain_ckpt/uie/uie_base_pytorch/config.json'
-checkpoint_path = 'F:/Projects/pretrain_ckpt/uie/uie_base_pytorch/pytorch_model.bin'
-dict_path = 'F:/Projects/pretrain_ckpt/uie/uie_base_pytorch/vocab.txt'
+# config_path = 'F:/Projects/pretrain_ckpt/uie/uie_base_pytorch/config.json'
+# checkpoint_path = 'F:/Projects/pretrain_ckpt/uie/uie_base_pytorch/pytorch_model.bin'
+# dict_path = 'F:/Projects/pretrain_ckpt/uie/uie_base_pytorch/vocab.txt'
+config_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\examples\sequence_labeling\uie\uie_base_pytorch/config.json'
+checkpoint_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\examples\sequence_labeling\uie\uie_base_pytorch/pytorch_model.bin'
+dict_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\examples\sequence_labeling\uie\uie_base_pytorch/vocab.txt'
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 tokenizer = Tokenizer(dict_path, do_lower_case=True)
