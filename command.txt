@@ -64,13 +64,27 @@ df -hl
 # 查看端口被哪个进程占用
 netstat -tunlp | grep 2181
 
+根据端口占用的进程:
+(base) htht@htht:~/mcy_frp/frp_0.32.1_linux_amd64$ lsof -i:7000
+COMMAND  PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+frpc    5904 htht    6u  IPv4  75992      0t0  TCP bogon:60230->8.130.126.131:bbs (ESTABLISHED)
+(base) htht@htht:~/mcy_frp/frp_0.32.1_linux_amd64$
+
+根据PID/COMMAND查看启动的命令文件
+ps -ef|grep PID/COMMAND
+root@iZ0jl16snshllvywzyv044Z:~# ps -ef|grep 76140
+root       76140       1  0 Jun05 ?        00:13:44 ./frps -c ./frps.ini
+
+进程的启动时间和运行时间:
+ps -o lstart,etime -p 76140
+
 # nohup
 nohup python train.py >> train_log.log 2>&1 &  追加到文件
 nohup python train.py > train_log.log 2>&1 &   清空之前文件内容新加
 nohup python spert.py train --config configs/example_train.conf > train_log.log 2>&1 &
 CUDA_VISIBLE_DEVICES=1 python spert.py train --config configs/example_train.conf > train_log.log 2>&1 &
 nohup ./启动.sh > log/不良反应_token_cls_index_no_blank_1.log 2>&1 &
-
+nohup ./start_frp_client.sh > log1.log 2>&1 &
 # tensorboard
 tensorboard –-logdir /Users/machaoyang/Downloads/cpm-2-finetune/result/
 http://localhost:6006
