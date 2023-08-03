@@ -17,15 +17,21 @@ import numpy as np
 
 maxlen = 128
 batch_size = 32
-config_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/bert_config.json'
-checkpoint_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/pytorch_model.bin'
-dict_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/vocab.txt'
+# config_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/bert_config.json'
+# checkpoint_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/pytorch_model.bin'
+# dict_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/vocab.txt'
+
+config_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\bert-base-chinese\config.json'
+checkpoint_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\bert-base-chinese\pytorch_model.bin'
+dict_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\bert-base-chinese\vocab.txt'
+
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # 加载标签字典
 predicate2id, id2predicate = {}, {}
 
-with open('F:/Projects/data/corpus/relation_extraction/BD_Knowledge_Extraction/all_50_schemas', encoding='utf-8') as f:
+schema_path = 'D:/Projects/machaoyangNLP/algorithm/src/package_bert4torch/data/relation_extraction/BD_Knowledge_Extraction/all_50_schemas'
+with open(schema_path, encoding='utf-8') as f:
     for l in f:
         l = json.loads(l)
         if l['predicate'] not in predicate2id:
@@ -45,7 +51,11 @@ class MyDataset(ListDataset):
         D = []
         with open(filename, encoding='utf-8') as f:
             for l in f:
-                l = json.loads(l)
+                try:
+                    l = json.loads(l)
+                except:
+                    print("此条数据异常，跳过此条数据")
+                    continue
                 D.append({'text': l['text'],
                           'spo_list': [(spo['subject'], spo['predicate'], spo['object']) for spo in l['spo_list']]})
         return D
@@ -88,8 +98,10 @@ def collate_fn(batch):
             if not label:  # 至少要有一个标签
                 label.add((0, 0))  # 如果没有则用0填充
         entity_labels = sequence_padding([list(l) for l in entity_labels])  # [subject/object=2, 实体个数, 实体起终点]
-        head_labels = sequence_padding([list(l) for l in head_labels])  # [关系个数, 该关系下subject/object配对数, subject/object起点]
-        tail_labels = sequence_padding([list(l) for l in tail_labels])  # [关系个数, 该关系下subject/object配对数, subject/object终点]
+        # [关系个数, 该关系下subject/object配对数, subject/object起点]
+        head_labels = sequence_padding([list(l) for l in head_labels])
+        # [关系个数, 该关系下subject/object配对数, subject/object终点]
+        tail_labels = sequence_padding([list(l) for l in tail_labels])
         # 构建batch
         batch_token_ids.append(token_ids)
         batch_segment_ids.append(segment_ids)
@@ -102,15 +114,18 @@ def collate_fn(batch):
     # batch_entity_labels: [btz, subject/object=2, 实体个数, 实体起终点]
     # batch_head_labels: [btz, 关系个数, 该关系下subject/object配对数, subject/object起点]
     # batch_tail_labels: [btz, 关系个数, 该关系下subject/object配对数, subject/object终点]
-    batch_entity_labels = torch.tensor(sequence_padding(batch_entity_labels, seq_dims=2), dtype=torch.float, device=device)
+    batch_entity_labels = torch.tensor(sequence_padding(
+        batch_entity_labels, seq_dims=2), dtype=torch.float, device=device)
     batch_head_labels = torch.tensor(sequence_padding(batch_head_labels, seq_dims=2), dtype=torch.float, device=device)
     batch_tail_labels = torch.tensor(sequence_padding(batch_tail_labels, seq_dims=2), dtype=torch.float, device=device)
     return [batch_token_ids, batch_segment_ids], [batch_entity_labels, batch_head_labels, batch_tail_labels]
 
-train_dataloader = DataLoader(MyDataset('F:/Projects/data/corpus/relation_extraction/BD_Knowledge_Extraction/train_data.json'), 
-                   batch_size=batch_size, shuffle=True, collate_fn=collate_fn) 
-valid_dataset = MyDataset('F:/Projects/data/corpus/relation_extraction/BD_Knowledge_Extraction/dev_data.json')
-valid_dataloader = DataLoader(valid_dataset, batch_size=batch_size, collate_fn=collate_fn) 
+
+train_data_path = 'D:/Projects/machaoyangNLP/algorithm/src/package_bert4torch/data/relation_extraction/BD_Knowledge_Extraction/train_data_small.jsonl'
+eval_data_path = 'D:/Projects/machaoyangNLP/algorithm/src/package_bert4torch/data/relation_extraction/BD_Knowledge_Extraction/train_data_small.jsonl'
+train_dataloader = DataLoader(MyDataset(train_data_path), batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
+valid_dataset = MyDataset(eval_data_path)
+valid_dataloader = DataLoader(valid_dataset, batch_size=batch_size, collate_fn=collate_fn)
 
 
 # 定义bert上的模型结构
@@ -119,8 +134,11 @@ class Model(BaseModel):
         super().__init__()
         self.bert = build_transformer_model(config_path, checkpoint_path)
         self.entity_output = GlobalPointer(hidden_size=768, heads=2, head_size=64)
-        self.head_output = GlobalPointer(hidden_size=768, heads=len(predicate2id), head_size=64, RoPE=False, tril_mask=False)
-        self.tail_output = GlobalPointer(hidden_size=768, heads=len(predicate2id), head_size=64, RoPE=False, tril_mask=False)
+        self.head_output = GlobalPointer(
+            hidden_size=768, heads=len(predicate2id), head_size=64, RoPE=False, tril_mask=False)
+        self.tail_output = GlobalPointer(
+            hidden_size=768, heads=len(predicate2id), head_size=64, RoPE=False,
+                                         tril_mask=False)
 
     def forward(self, *inputs):
         hidden_states = self.bert(inputs)  # [btz, seq_len, hdsz]
@@ -130,13 +148,15 @@ class Model(BaseModel):
         head_output = self.head_output(hidden_states, mask)  # [btz, heads, seq_len, seq_len]
         tail_output = self.tail_output(hidden_states, mask)  # [btz, heads, seq_len, seq_len]
         return entity_output, head_output, tail_output
-    
+
 
 model = Model().to(device)
 
+
 class MyLoss(SparseMultilabelCategoricalCrossentropy):
-    def __init__(self, **kwargs): 
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
     def forward(self, y_preds, y_trues):
         ''' y_preds: [Tensor], shape为[btz, heads, seq_len ,seq_len]
         '''
@@ -149,11 +169,15 @@ class MyLoss(SparseMultilabelCategoricalCrossentropy):
             loss = super().forward(y_pred, y_true.long())
             loss = torch.mean(torch.sum(loss, dim=1))
             loss_list.append(loss)
-        return {'loss': sum(loss_list)/3, 'entity_loss': loss_list[0], 'head_loss': loss_list[1], 'tail_loss': loss_list[2]}
+        return {'loss': sum(loss_list) / 3, 'entity_loss': loss_list[0], 'head_loss': loss_list[1],
+                'tail_loss': loss_list[2]}
 
-model.compile(loss=MyLoss(mask_zero=True), optimizer=optim.Adam(model.parameters(), 1e-5), metrics=['entity_loss', 'head_loss', 'tail_loss'])
 
-def extract_spoes(text, threshold=0):
+model.compile(loss=MyLoss(mask_zero=True), optimizer=optim.Adam(model.parameters(), 1e-5),
+              metrics=['entity_loss', 'head_loss', 'tail_loss'])
+
+
+def extract_spoes(text, threshold=0.0):
     """抽取输入text所包含的三元组
     """
     tokens = tokenizer.tokenize(text, maxlen=maxlen)
@@ -161,22 +185,22 @@ def extract_spoes(text, threshold=0):
     token_ids, segment_ids = tokenizer.encode(text, maxlen=maxlen)
     token_ids = torch.tensor([token_ids], dtype=torch.long, device=device)
     segment_ids = torch.tensor([segment_ids], dtype=torch.long, device=device)
-    outputs = model.predict([token_ids, segment_ids])
+    outputs = model.predict([token_ids, segment_ids])  # entity_output, head_output, tail_output
     outputs = [o[0].cpu().numpy() for o in outputs]  # [heads, seq_len, seq_len]
     # 抽取subject和object
     subjects, objects = set(), set()
     outputs[0][:, [0, -1]] -= float('inf')
     outputs[0][:, :, [0, -1]] -= float('inf')
     for l, h, t in zip(*np.where(outputs[0] > threshold)):
-        if l == 0:
+        if l == 0:  # subject 0   object 1
             subjects.add((h, t))
         else:
             objects.add((h, t))
     # 识别对应的predicate
     spoes = set()
-    for sh, st in subjects:
-        for oh, ot in objects:
-            p1s = np.where(outputs[1][:, sh, oh] > threshold)[0]
+    for sh, st in subjects:  # 地名             地名    机构                地名
+        for oh, ot in objects:  # 如果用两个层分别表示subject和object 那么实体是带实体类型的  北京--located in china  北京大学--located in china
+            p1s = np.where(outputs[1][:, sh, oh] > threshold)[0]  # entity_type: subject
             p2s = np.where(outputs[2][:, st, ot] > threshold)[0]
             ps = set(p1s) & set(p2s)
             for p in ps:
@@ -238,7 +262,7 @@ class Evaluator(Callback):
             self.best_val_f1 = f1
             # model.save_weights('best_model.pt')
         # optimizer.reset_old_weights()
-        print('f1: %.5f, precision: %.5f, recall: %.5f, best f1: %.5f\n' %(f1, precision, recall, self.best_val_f1))
+        print('f1: %.5f, precision: %.5f, recall: %.5f, best f1: %.5f\n' % (f1, precision, recall, self.best_val_f1))
 
 
 if __name__ == '__main__':
