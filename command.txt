@@ -348,9 +348,11 @@ docker push dockerdist.bdmd.com/cmh-chunk:20191129024330_fix
 镜像导出:
 docker save -o /data/pytorch-nlp-devel:1.10.1.tar 172.16.20.21:1180/pie-engine-training/pytorch-nlp-devel:1.10.1
 镜像导入:
-docker load -i /data/pytorch-nlp-devel:1.10.1.tar 172.16.20.21:1180/pie-engine-training/pytorch-nlp-devel:1.10.1
-镜像改名:
+docker load -i /data/pytorch-nlp-devel:1.10.1.tar
 docker image tag 172.16.20.21:1180/pie-engine-training/pytorch-nlp-devel:1.10.1_with_dynaconf 172.16.20.21:1180/pie-engine-training/pytorch-nlp-devel:1.10.1
+
+查看镜像或者容器的元数据:
+docker inspect 镜像或容器的名称
 
 sudo docker run -itd -p 11010:8080  -p 11011:8081 --gpus="device=1" -v /home/machaoyang/Projects/model/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0:/ai-doctor-assistant/models/v3_1/service_cmh_chunk/v3_1_0 --name pre_his_chunk_3.1.0_v1 dockerdist.bdmd.com/cmh-chunk:20191129024330_fix  python app.py
 
@@ -397,3 +399,99 @@ python train_reward_model.py  --model "nghuyong/ernie-3.0-base-zh"  --train_path
 
 
 docker commit python3_jieba rackspacedot/python37:chatGLM
+
+wget https://github.com/fatedier/frp/releases/download/v0.32.1/frp_0.32.1_linux_amd64.tar.gz
+tar -zxvf  frp_0.32.1_linux_amd64.tar.gz
+
+根据端口占用的进程:
+(base) htht@htht:~/mcy_frp/frp_0.32.1_linux_amd64$ lsof -i:7000
+COMMAND  PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+frpc    5904 htht    6u  IPv4  75992      0t0  TCP bogon:60230->8.130.126.131:bbs (ESTABLISHED)
+(base) htht@htht:~/mcy_frp/frp_0.32.1_linux_amd64$
+
+根据PID/COMMAND查看启动的命令文件
+ps -ef|grep PID/COMMAND
+root@iZ0jl16snshllvywzyv044Z:~# ps -ef|grep 76140
+root       76140       1  0 Jun05 ?        00:13:44 ./frps -c ./frps.ini
+
+进程的启动时间和运行时间:
+ps -o lstart,etime -p 76140
+
+重启:
+shutdown -r now
+
+8.130.126.131 6000
+machaoyang
+Mcy394964881
+
+apt-get -y update
+apt-get -y install openssl@1.1
+
+nohup python spert.py train --config configs/example_train.conf > train_log.log 2>&1 &
+CUDA_VISIBLE_DEVICES=2 nohup python spert.py train --config configs/first_game/example_train.conf > train_log.log 2>&1 &
+find / -name bert-base-chinese
+
+# 默认是只显示自己账号下的 加上sudo 则显示的所有的
+(chatGLM) machaoyang@htht:~/Projects/text_game/event_extraction_v2/src/sequence_labeling$ fuser -v /dev/nvidia*
+                     USER        PID ACCESS COMMAND
+/dev/nvidia0:        machaoyang  3960986 F...m python
+/dev/nvidia1:        machaoyang  3960986 F...m python
+/dev/nvidia2:        machaoyang  3960986 F...m python
+/dev/nvidia3:        machaoyang  3960986 F...m python
+/dev/nvidiactl:      machaoyang  3960986 F...m python
+/dev/nvidia-uvm:     machaoyang  3960986 F...m python
+
+sudo systemctl list-unit-files | grep enabled
+查看系统版本:
+lsb_release -a
+
+查看系统开机了多长时间:
+who -b
+
+docker 为用户组名 查看用户组下有哪些用户
+cat /etc/group | grep docker
+
+重启docker
+systemctl restart  docker
+
+查看是否安装NVIDIA显卡
+lspci | grep -i nvidia
+
+检查可安装的驱动
+(base) htht@htht:~$ ubuntu-drivers devices
+vendor   : NVIDIA Corporation
+model    : TU102GL [Quadro RTX 6000/8000] (Quadro RTX 8000)
+driver   : nvidia-driver-525 - distro non-free
+driver   : nvidia-driver-470-server - distro non-free
+driver   : nvidia-driver-525-open - distro non-free
+driver   : nvidia-driver-535 - distro non-free
+driver   : nvidia-driver-535-open - distro non-free
+driver   : nvidia-driver-450-server - distro non-free
+driver   : nvidia-driver-535-server - distro non-free
+driver   : nvidia-driver-525-server - distro non-free
+driver   : nvidia-driver-470 - distro non-free
+driver   : nvidia-driver-535-server-open - distro non-free recommended
+driver   : xserver-xorg-video-nouveau - distro free builtin
+
+查看安装的驱动版本:
+nvidia-smi 显示的是当前驱动支持的最高版本的cuda,要安装的cuda版本不应高于这个版本 如果输入这个指令有反应在表示显卡驱动没问题
+
+查看cuda版本:
+nvcc -V
+
+一个包的setup.py中的包依赖比requirements.txt的有效,如果后者不能让包安装成功,则可以去setup.py中找
+对于复杂的任务 例如代码生成 见过标注数据的模型肯定是比gpt-3 zero-shot出来的好的  对于简单任务,gpt-3还好
+
+docker run  -d --gpus '"device=2"' -p 80:8501 -p 1022:22 --name langchain registry.cn-beijing.aliyuncs.com/chatchat/chatchat:0.2.3
+docker run  --gpus '"device=2"' -p 80:8501 -p 1022:22 --name langchain registry.cn-beijing.aliyuncs.com/chatchat/chatchat:0.2.3
+
+
+docker run -it   -p 1122:22 --name pyspark_v1 120-rs-pyspark-image:1.0 /bin/bash
+
+
+docker build -f ./Dockerfile -t spark_graphframes:1.0 .
+
+pip install git+https://github.com/graphframes/graphframes.git
+pip install --default-timeout=100 loguru
+
+du -h .
