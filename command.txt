@@ -485,13 +485,12 @@ nvcc -V
 docker run  -d --gpus '"device=2"' -p 80:8501 -p 1022:22 --name langchain registry.cn-beijing.aliyuncs.com/chatchat/chatchat:0.2.3
 docker run  --gpus '"device=2"' -p 80:8501 -p 1022:22 --name langchain registry.cn-beijing.aliyuncs.com/chatchat/chatchat:0.2.3
 
-
-docker run -it   -p 1122:22 --name pyspark_v1 120-rs-pyspark-image:1.0 /bin/bash
-
-
 docker build -f ./Dockerfile -t spark_graphframes:1.0 .
 
 pip install git+https://github.com/graphframes/graphframes.git
 pip install --default-timeout=100 loguru
 
 du -h .
+
+容器创建时挂载目录 在容器中删除文件会导致容器外挂载的文件删除 但是对容器commit为镜像时挂载目录的文件不会打包到镜像
+

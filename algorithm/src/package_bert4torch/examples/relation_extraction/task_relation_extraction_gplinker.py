@@ -7,7 +7,7 @@ import json
 from bert4torch.layers import GlobalPointer
 from bert4torch.tokenizers import Tokenizer
 from bert4torch.models import build_transformer_model, BaseModel
-from bert4torch.snippets import sequence_padding, Callback, ListDataset
+from bert4torch.snippets import sequence_padding, Callback, ListDataset, seed_everything
 from bert4torch.losses import SparseMultilabelCategoricalCrossentropy
 from tqdm import tqdm
 import torch
@@ -15,8 +15,9 @@ from torch.utils.data import DataLoader
 import torch.optim as optim
 import numpy as np
 
+seed_everything(42)  # 固定seed
 maxlen = 128
-batch_size = 32
+batch_size = 5
 # config_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/bert_config.json'
 # checkpoint_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/pytorch_model.bin'
 # dict_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/vocab.txt'
@@ -99,6 +100,7 @@ def collate_fn(batch):
                 label.add((0, 0))  # 如果没有则用0填充
         entity_labels = sequence_padding([list(l) for l in entity_labels])  # [subject/object=2, 实体个数, 实体起终点]
         # [关系个数, 该关系下subject/object配对数, subject/object起点]
+        # 原始head_labels 列表 列表长度是谓语类别数49, 每个元素是一个集合,集合中是(hs, ht) 如果没有当前样本当前类别没有则设为{(0, 0)}
         head_labels = sequence_padding([list(l) for l in head_labels])
         # [关系个数, 该关系下subject/object配对数, subject/object终点]
         tail_labels = sequence_padding([list(l) for l in tail_labels])
@@ -177,7 +179,7 @@ model.compile(loss=MyLoss(mask_zero=True), optimizer=optim.Adam(model.parameters
               metrics=['entity_loss', 'head_loss', 'tail_loss'])
 
 
-def extract_spoes(text, threshold=0.0):
+def extract_spoes(text, threshold=0.5):
     """抽取输入text所包含的三元组
     """
     tokens = tokenizer.tokenize(text, maxlen=maxlen)
@@ -189,6 +191,8 @@ def extract_spoes(text, threshold=0.0):
     outputs = [o[0].cpu().numpy() for o in outputs]  # [heads, seq_len, seq_len]
     # 抽取subject和object
     subjects, objects = set(), set()
+    # output[0](2,45,45)实体 2实体类型包含subject object 45 当前文本长度包含cls和sep 将第0行和倒数第1行(45)的得分设置为负无穷
+    # 将第0列和最后一列的得分设置为负无穷
     outputs[0][:, [0, -1]] -= float('inf')
     outputs[0][:, :, [0, -1]] -= float('inf')
     for l, h, t in zip(*np.where(outputs[0] > threshold)):

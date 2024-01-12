@@ -26,3 +26,32 @@ print(res)
 similarity_dict = {'a': 1, 'c': 3, 'b': 2}
 sorted_similarity_dict = sorted(similarity_dict.items(), reverse=True, key=lambda x: x[1])
 print('similarity_dict:{}'.format(sorted_similarity_dict))  # [('c', 3), ('b', 2), ('a', 1)]
+
+# 字典的值是字典 按照字典的值中某个键对应的值进行排序
+my_dict = {
+    "a": {"age": 30, "name": "Alice"},
+    "b": {"age": 25, "name": "Bob"},
+    "c": {"age": 35, "name": "Charlie"},
+}
+sorted_dict = dict(sorted(my_dict.items(), key=lambda x: x[1]["age"], reverse=True))
+print(sorted_dict)
+
+# 对字典列表排序
+data = [
+    {'name': 'Alice', 'age': 30},
+    {'name': 'Bob', 'age': 25},
+    {'name': 'Charlie', 'age': 35},
+]
+sorted_data = sorted(data, key=lambda x: x['age'])
+print(sorted_data)
+
+lst = [
+    {'name': 'Tom', 'age': 22, 'score': 85},
+    {'name': 'Jerry', 'age': 20, 'score': 90},
+    {'name': 'Bob', 'age': 21, 'score': 85},
+    {'name': 'Alice', 'age': 20, 'score': 95},
+]
+
+# 首先按照'score'排序，然后在'score'相同的情况下按照'age'排序
+sorted_lst = sorted(lst, key=lambda x: (x['score'], x['age']), reverse=True)
+print(sorted_lst)

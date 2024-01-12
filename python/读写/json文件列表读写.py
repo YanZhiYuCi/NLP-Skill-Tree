@@ -36,6 +36,7 @@ def json_dir_read_write():
         # todo 某种处理,这里直接将输入深拷贝后作为处理的结果
         data_processed = copy.deepcopy(data)
         data_processed_str: str = json.dumps(data_processed, ensure_ascii=False)
+        data_processed_str: str = json.dumps(data_processed, ensure_ascii=False, indent=4)  # 直接将数据展开而不是压缩到一行
         file_write_path = os.path.join(file_write_dir, file_name)
         open(file_write_path, 'w').write(data_processed_str)
     logger.info('===========处理结束==========')

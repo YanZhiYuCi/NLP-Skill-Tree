@@ -15,7 +15,7 @@ from bert4torch.models import build_transformer_model, BaseModel
 from tqdm import tqdm
 
 max_len = 256
-batch_size = 16
+batch_size = 2
 categories = ['LOC', 'PER', 'ORG']
 categories_id2label = {i: k for i, k in enumerate(categories, start=1)}
 categories_label2id = {k: i for i, k in enumerate(categories, start=1)}
@@ -49,7 +49,7 @@ class MyDataset(ListDataset):
                 for i, c in enumerate(l.split('\n')):
                     char, flag = c.split(' ')
                     d[0] += char
-                    if flag[0] == 'B':
+                    if flag[0] == 'B':  # B-地名 I-地名
                         d.append([i, i, flag[2:]])
                     elif flag[0] == 'I':
                         d[-1][1] = i
@@ -168,7 +168,7 @@ def span_decode(start_preds, end_preds, mask=None):
     '''
     predict_entities = set()
     if mask is not None:  # 把padding部分mask掉
-        start_preds = torch.argmax(start_preds, -1) * mask
+        start_preds = torch.argmax(start_preds, -1) * mask  # [bts, seq_len, num_tags]变为[bts, seq_len]
         end_preds = torch.argmax(end_preds, -1) * mask
 
     start_preds = start_preds.cpu().numpy()

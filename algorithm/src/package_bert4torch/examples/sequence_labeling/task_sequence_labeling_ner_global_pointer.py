@@ -85,8 +85,8 @@ def collate_fn(batch):
 # 转换数据集
 train_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\china-people-daily-ner-corpus\example.train'
 eval_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\china-people-daily-ner-corpus\example.dev'
-train_dataloader = DataLoader(MyDataset(train_path)[0:10], batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
-valid_dataloader = DataLoader(MyDataset(train_path)[0:10], batch_size=batch_size, collate_fn=collate_fn)
+train_dataloader = DataLoader(MyDataset(train_path)[0:100], batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
+valid_dataloader = DataLoader(MyDataset(eval_path)[0:100], batch_size=batch_size, collate_fn=collate_fn)
 
 # 定义bert上的模型结构
 class Model(BaseModel):
@@ -141,7 +141,7 @@ class Evaluator(Callback):
         f1, precision, recall = evaluate(valid_dataloader)
         if f1 > self.best_val_f1:
             self.best_val_f1 = f1
-            # model.save_weights('best_model.pt')
+            model.save_weights('best_model.pt')
         print(f'[val] f1: {f1:.5f}, p: {precision:.5f} r: {recall:.5f} best_f1: {self.best_val_f1:.5f}')
 
 

@@ -4,7 +4,8 @@
 
 from bert4torch.tokenizers import Tokenizer
 from bert4torch.models import build_transformer_model, BaseModel
-from bert4torch.snippets import sequence_padding, Callback, text_segmentate, ListDataset, seed_everything, get_pool_emb, AdversarialTraining
+from bert4torch.snippets import sequence_padding, Callback, text_segmentate, ListDataset, seed_everything, get_pool_emb
+from bert4torch.callbacks import AdversarialTraining
 import torch.nn as nn
 import torch
 import torch.optim as optim
@@ -12,11 +13,15 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import random
 
-maxlen = 256
-batch_size = 16
+maxlen = 128
+batch_size = 2
 config_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/bert_config.json'
 checkpoint_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/pytorch_model.bin'
 dict_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/vocab.txt'
+config_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\bert-base-chinese\config.json'
+checkpoint_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\bert-base-chinese\pytorch_model.bin'
+dict_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\bert-base-chinese\vocab.txt'
+model_type = 'bert'
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 seed_everything(42)
 
@@ -39,9 +44,12 @@ class MyDataset(ListDataset):
                         D.append((t, int(label)))
         return D
 
-train_dataset = MyDataset(['F:/Projects/data/corpus/sentence_classification/sentiment/sentiment.train.data'])
-valid_dataset = MyDataset(['F:/Projects/data/corpus/sentence_classification/sentiment/sentiment.valid.data'])
-test_dataset = MyDataset(['F:/Projects/data/corpus/sentence_classification/sentiment/sentiment.test.data'])
+train_dataset = MyDataset([r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\examples\datasets\sentiment\sentiment.train.data'])
+valid_dataset = MyDataset([r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\examples\datasets\sentiment/sentiment.valid.data'])
+test_dataset = MyDataset([r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\examples\datasets\sentiment/sentiment.test.data'])
+train_dataset.data = train_dataset.data[:100]
+valid_dataset.data = valid_dataset.data[:100]
+test_dataset.data = test_dataset.data[:100]
 
 # 理论上应该收集任务领域类的无监督数据，这里用所有的监督数据来作无监督数据
 unsup_dataset =  [sen for sen, _ in (train_dataset.data + valid_dataset.data + test_dataset.data)]

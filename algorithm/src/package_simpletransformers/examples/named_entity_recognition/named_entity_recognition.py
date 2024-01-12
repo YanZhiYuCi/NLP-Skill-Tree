@@ -26,6 +26,8 @@ eval_df = pd.DataFrame(eval_data, columns=["sentence_id", "words", "labels"])
 # )
 
 model_args = NERArgs()
+model_args.classification_report = True
+model_args.silent = True
 model_args.num_train_epochs = 2
 
 model_args.process_count = 1

@@ -18,18 +18,40 @@ from bert4torch.layers import EfficientGlobalPointer
 maxlen = 256
 batch_size = 16
 categories_label2id = {"LOC": 0, "ORG": 1, "PER": 2}
-categories_id2label = dict((value, key) for key,value in categories_label2id.items())
+categories_id2label = dict((value, key) for key, value in categories_label2id.items())
 ner_vocab_size = len(categories_label2id)
 ner_head_size = 64
 
 # BERT base
-config_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/bert_config.json'
-checkpoint_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/pytorch_model.bin'
-dict_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/vocab.txt'
+# config_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/bert_config.json'
+# checkpoint_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/pytorch_model.bin'
+# dict_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/vocab.txt'
+
+config_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\bert-base-chinese\config.json'
+checkpoint_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\bert-base-chinese\pytorch_model.bin'
+dict_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\bert-base-chinese\vocab.txt'
+model_type = 'bert'
+
+config_path = r'D:\Projects\machaoyangNLP\algorithm\src\pretrain_model\albert-base-chinese-cluecorpussmall\config.json'
+checkpoint_path = r'D:\Projects\machaoyangNLP\algorithm\src\pretrain_model\albert-base-chinese-cluecorpussmall\pytorch_model.bin'
+dict_path = r'D:\Projects\machaoyangNLP\algorithm\src\pretrain_model\albert-base-chinese-cluecorpussmall\vocab.txt'
+model_type = 'albert'
+
+config_path = r'D:\Projects\machaoyangNLP\algorithm\src\pretrain_model\chinese-roberta-wwm-ext\config.json'
+checkpoint_path = r'D:\Projects\machaoyangNLP\algorithm\src\pretrain_model\chinese-roberta-wwm-ext\pytorch_model.bin'
+dict_path = r'D:\Projects\machaoyangNLP\algorithm\src\pretrain_model\chinese-roberta-wwm-ext\vocab.txt'
+model_type = 'roberta'
+
+# config_path = r'D:\Projects\machaoyangNLP\algorithm\src\pretrain_model\longformer-chinese-base-4096\config.json'
+# checkpoint_path = r'D:\Projects\machaoyangNLP\algorithm\src\pretrain_model\longformer-chinese-base-4096\pytorch_model.bin'
+# dict_path = r'D:\Projects\machaoyangNLP\algorithm\src\pretrain_model\longformer-chinese-base-4096\vocab.txt'
+# model_type = 'longformer'
+
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # 固定seed
 seed_everything(42)
+
 
 # 加载数据集
 class MyDataset(ListDataset):
@@ -52,8 +74,10 @@ class MyDataset(ListDataset):
                 data.append((text, label))  # label为[[start, end, entity], ...]
         return data
 
+
 # 建立分词器
 tokenizer = Tokenizer(dict_path, do_lower_case=True)
+
 
 def collate_fn(batch):
     batch_token_ids, batch_labels = [], []
@@ -71,39 +95,50 @@ def collate_fn(batch):
                 label = categories_label2id[label]
                 labels[label, start, end] = 1
 
-        batch_token_ids.append(token_ids) # 前面已经限制了长度
+        batch_token_ids.append(token_ids)  # 前面已经限制了长度
         batch_labels.append(labels[:, :len(token_ids), :len(token_ids)])
     batch_token_ids = torch.tensor(sequence_padding(batch_token_ids), dtype=torch.long, device=device)
     batch_labels = torch.tensor(sequence_padding(batch_labels, seq_dims=3), dtype=torch.long, device=device)
+
     return batch_token_ids, batch_labels
 
+
 # 转换数据集
-train_dataloader = DataLoader(MyDataset('F:/Projects/data/corpus/ner/china-people-daily-ner-corpus/example.train'), batch_size=batch_size, shuffle=True, collate_fn=collate_fn) 
-valid_dataloader = DataLoader(MyDataset('F:/Projects/data/corpus/ner/china-people-daily-ner-corpus/example.dev'), batch_size=batch_size, collate_fn=collate_fn) 
+train_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\china-people-daily-ner-corpus\example.train'
+eval_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\china-people-daily-ner-corpus\example.dev'
+train_dataloader = DataLoader(MyDataset(train_path)[0:100], batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
+valid_dataloader = DataLoader(MyDataset(eval_path)[0:100], batch_size=batch_size, collate_fn=collate_fn)
+
 
 # 定义bert上的模型结构
 class Model(BaseModel):
     def __init__(self):
         super().__init__()
-        self.bert = build_transformer_model(config_path=config_path, checkpoint_path=checkpoint_path, segment_vocab_size=0)
+        self.bert = build_transformer_model(config_path=config_path, checkpoint_path=checkpoint_path,
+                                            segment_vocab_size=0, model=model_type)
         self.global_pointer = EfficientGlobalPointer(hidden_size=768, heads=ner_vocab_size, head_size=ner_head_size)
 
     def forward(self, token_ids):
         sequence_output = self.bert([token_ids])  # [btz, seq_len, hdsz]
         logit = self.global_pointer(sequence_output, token_ids.gt(0).long())
         return logit
-        
+
+
 model = Model().to(device)
+
 
 class MyLoss(MultilabelCategoricalCrossentropy):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
     def forward(self, y_pred, y_true):
-        y_true = y_true.view(y_true.shape[0]*y_true.shape[1], -1)  # [btz*ner_vocab_size, seq_len*seq_len]
-        y_pred = y_pred.view(y_pred.shape[0]*y_pred.shape[1], -1)  # [btz*ner_vocab_size, seq_len*seq_len]
+        y_true = y_true.view(y_true.shape[0] * y_true.shape[1], -1)  # [btz*ner_vocab_size, seq_len*seq_len]
+        y_pred = y_pred.view(y_pred.shape[0] * y_pred.shape[1], -1)  # [btz*ner_vocab_size, seq_len*seq_len]
         return super().forward(y_pred, y_true)
 
+
 model.compile(loss=MyLoss(), optimizer=optim.Adam(model.parameters(), lr=2e-5))
+
 
 def evaluate(data, threshold=0.5):
     X, Y, Z, threshold = 1e-10, 1e-10, 1e-10, 0
@@ -112,7 +147,7 @@ def evaluate(data, threshold=0.5):
         for i, score in enumerate(scores):
             R = set()
             for l, start, end in zip(*np.where(score.cpu() > threshold)):
-                R.add((start, end, categories_id2label[l]))  
+                R.add((start, end, categories_id2label[l]))
 
             T = set()
             for l, start, end in zip(*np.where(label[i].cpu() > threshold)):
@@ -127,6 +162,7 @@ def evaluate(data, threshold=0.5):
 class Evaluator(Callback):
     """评估与保存
     """
+
     def __init__(self):
         self.best_val_f1 = 0.
 
@@ -144,6 +180,7 @@ if __name__ == '__main__':
 
     model.fit(train_dataloader, epochs=20, steps_per_epoch=None, callbacks=[evaluator])
 
-else: 
+else:
 
     model.load_weights('best_model.pt')
+

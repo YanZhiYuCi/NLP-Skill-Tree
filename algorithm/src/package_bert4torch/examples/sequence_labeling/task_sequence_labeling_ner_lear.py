@@ -36,6 +36,12 @@ categories_annotations = {"LOC": "找出下述句子中的地址名",
 config_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/bert_config.json'
 checkpoint_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/pytorch_model.bin'
 dict_path = 'F:/Projects/pretrain_ckpt/bert/[google_tf_base]--chinese_L-12_H-768_A-12/vocab.txt'
+
+config_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\bert-base-chinese\config.json'
+checkpoint_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\bert-base-chinese\pytorch_model.bin'
+dict_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\bert-base-chinese\vocab.txt'
+model_type = 'bert'
+
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # 固定seed
@@ -98,8 +104,10 @@ def collate_fn(batch):
     return [batch_token_ids, batch_label_token_ids], [masks, batch_start_labels, batch_end_labels, batch_span_labels]
 
 # 转换数据集
-train_dataloader = DataLoader(MyDataset('F:/Projects/data/corpus/ner/china-people-daily-ner-corpus/example.train'), batch_size=batch_size, shuffle=True, collate_fn=collate_fn) 
-valid_dataloader = DataLoader(MyDataset('F:/Projects/data/corpus/ner/china-people-daily-ner-corpus/example.dev'), batch_size=batch_size, collate_fn=collate_fn) 
+train_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\china-people-daily-ner-corpus\example.train'
+eval_path = r'D:\Projects\machaoyangNLP\algorithm\src\package_bert4torch\data\china-people-daily-ner-corpus\example.dev'
+train_dataloader = DataLoader(MyDataset(train_path)[:100], batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
+valid_dataloader = DataLoader(MyDataset(eval_path)[:100], batch_size=batch_size, collate_fn=collate_fn)
 
 class LabelFusionForToken(nn.Module):
     def __init__(self, hidden_size):

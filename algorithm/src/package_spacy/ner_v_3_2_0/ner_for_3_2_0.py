@@ -98,6 +98,10 @@ with nlp.disable_pipes(*other_pipes):  # only train NER
 
         for i in range(len(dev_data)):
             i_doc = nlp(dev_data[i][0])
+
+            # from spacy import displacy
+            # displacy.render(i_doc, type='ent')
+
             true_entities = dev_data[i][1]["entities"]
             predict_entities = [(_.start, _.end, _.label_, _.text) for _ in i_doc.ents]
 

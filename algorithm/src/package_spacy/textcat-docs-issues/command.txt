@@ -1,3 +1,0 @@
---model='text_classification'
---train_path='D:\Projects\projects-master\textcat-docs-issues\docs_issues_training.jsonl'
---eval_path='D:\Projects\projects-master\textcat-docs-issues\docs_issues_eval.jsonl'
